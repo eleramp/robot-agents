@@ -30,7 +30,7 @@ def callback(_locals, _globals):
     # Print stats every 1000 calls
     if (n_steps + 1) % 1000 == 0:
         # Evaluate policy training performance
-        x, y = ts2xy(load_results(log_dir), 'timesteps')
+        x, y = ts2xy(load_results(os.path.join(output_dir,'log')), 'timesteps')
         if len(x) > 0:
             mean_reward = np.mean(y[-100:])
             print(x[-1], 'timesteps')
@@ -63,7 +63,8 @@ def train_DQN( env, out_dir, seed=None, **kwargs):
     del kwargs['policy']
     del kwargs['n_timesteps']
 
-    model = DQN(policy, env,  verbose=1, tensorboard_log=os.path.join(log_dir,'tb'),full_tensorboard_log=False, **kwargs)
+    model = DQN(policy, env,  verbose=1, tensorboard_log=os.path.join(log_dir,'tb'),
+                full_tensorboard_log=True, checkpoint_path=log_dir, **kwargs)
 
     model.learn(total_timesteps=n_timesteps, seed=seed, callback=callback)
 

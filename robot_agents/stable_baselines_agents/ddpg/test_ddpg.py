@@ -41,13 +41,9 @@ def evaluate(env, model, num_steps=1000):
 
 def test_DDPG( env, out_dir, seed=None, **kwargs):
 
-  # Logs will be saved in log_dir/monitor.csv
-  log_dir = os.path.join(out_dir,'log')
-  os.makedirs(log_dir, exist_ok=True)
-
   model = DDPG.load(os.path.join(out_dir,'best_model.pkl'))
 
   # Evaluate the trained agent
-  mean_reward = evaluate(env, model, num_steps=2000)
+  mean_reward = evaluate(env, model, num_steps=5000)
 
   return
