@@ -30,7 +30,7 @@ def callback(_locals, _globals):
     # Print stats every 1000 calls
     if (n_steps + 1) % 1000 == 0:
         # Evaluate policy training performance
-        x, y = ts2xy(load_results(log_dir), 'timesteps')
+        x, y = ts2xy(load_results(os.path.join(output_dir,'log')), 'timesteps')
         if len(x) > 0:
             mean_reward = np.mean(y[-100:])
             print(x[-1], 'timesteps')
