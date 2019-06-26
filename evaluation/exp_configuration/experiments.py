@@ -134,3 +134,25 @@ register_experiment({
             },
 
 })
+
+register_experiment({
+    'name': 'panda_push_ddpg/stable_baselines/random_7joints',
+    'description': 'Push task with panda robot, simulated in PyBullet by using DDPG algorithm',
+    'tasks': [  { 'sub_name':'', 'env_id':_env_prefix+'pandaPush-v0', 'seed': 1,
+                'env_params':{'useIK':0,'isDiscrete':0, 'numControlledJoints':7,'fixedPositionObj':False, 'renders':False},
+                },
+                ],
+    'algo': {   'name' : 'ddpg',
+                'RLlibrary': 'stable_baselines_agents',
+                'description': 'DDPG algorithm from stable_baselines library',
+                'params' : {'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
+                            'policy': 'LnMlpPolicy', #options: MlpPolicy e cnns ones
+                            'n_timesteps': 20000000,
+                            'batch_size': 16,
+                            'gamma': 0.95,
+                            'normalize_observations': False,
+                            'normalize_returns': True,
+                            'memory_limit': 1000000},
+            },
+
+})

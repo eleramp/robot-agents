@@ -53,7 +53,7 @@ def train_DDPG( env, out_dir, seed=None, **kwargs):
     output_dir = out_dir
     log_dir = os.path.join(out_dir,'log')
     os.makedirs(log_dir, exist_ok=True)
-    env = Monitor(env, log_dir+'/', allow_early_resets=True)
+    #env = Monitor(env, log_dir+'/', allow_early_resets=True)
 
     policy = kwargs['policy']
     n_timesteps = kwargs['n_timesteps']
@@ -94,7 +94,7 @@ def train_DDPG( env, out_dir, seed=None, **kwargs):
 
 
     model = DDPG(policy, env, param_noise=param_noise, action_noise=action_noise,
-                 verbose=1, tensorboard_log=os.path.join(log_dir,'tb'),full_tensorboard_log=True, **kwargs)
+                 verbose=1, tensorboard_log=os.path.join(log_dir,'tb'), **kwargs)
 
     model.learn(total_timesteps=n_timesteps, seed=seed, callback=callback)
 
