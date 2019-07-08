@@ -7,17 +7,19 @@ os.sys.path.insert(0, parentdir)
 import gym
 import tensorflow as tf
 from utils import set_global_seed
-from evaluation.exp_configuration import experiments
+from evaluation import experiment_registration
 import robot_agents
 
 import argparse
 
-def main(exp_name, output_dir):
+def main(exp_name, output_dir, do_train, do_test):
 
     if exp_name is None:
         raise ValueError("Please specify the experiment name. Run '$ experiment_wrapper -h' for info")
+    if not (do_train or do_test):
+        raise ValueError("Please specify if you want to do training or testing. Run '$ experiment_wrapper -h' for info")
 
-    exp = experiments.get_experiment(exp_name)
+    exp = experiment_registration.get_experiment(exp_name)
 
     for task in exp['tasks']:
 
@@ -37,11 +39,16 @@ def main(exp_name, output_dir):
         #run algorithm
         rl_library, algo_name, algo_params = exp['algo']['RLlibrary'], exp['algo']['name'],exp['algo']['params']
 
-        model = robot_agents.ALGOS[rl_library][algo_name](env, output_exp_dir, seed, **algo_params)
+        if do_train:
+            model = robot_agents.ALGOS[rl_library][algo_name](env, output_exp_dir, seed, **algo_params)
 
-        if not model is None:
-            print("Saving model.pkl to ",output_exp_dir)
-            model.save(os.path.join(output_exp_dir,"final_model.pkl"))
+            if not model is None:
+                print("Saving model.pkl to ",output_exp_dir)
+                model.save(os.path.join(output_exp_dir,"final_model.pkl"))
+
+        elif do_test:
+            algo_name = algo_name+'_test'
+            model = robot_agents.ALGOS[rl_library][algo_name](env, output_exp_dir, seed, **algo_params)
 
         del env
         del model
@@ -56,6 +63,12 @@ def parser_args():
     parser.add_argument('--exp', action='store', dest='exp_name', type=str,
                         help='name of the experiment to run')
 
+    parser.add_argument('--train', action='store_const', const=1, dest="do_train",
+                        help='do training')
+
+    parser.add_argument('--test', action='store_const', const=1, dest="do_test",
+                        help='do testing')
+
     parser.add_argument('--dir', type=str, action='store', dest='output_dir', default = '$HOME/robot_agents_log/',
                         help='directory where trained model, params and logs should be stored')
 
@@ -66,4 +79,6 @@ def parser_args():
 
 if __name__ == '__main__':
     args = parser_args()
+    print('args')
+    print(args)
     main(**args)

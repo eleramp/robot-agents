@@ -12,6 +12,7 @@ from stable_baselines.deepq.policies import MlpPolicy as policy
 from stable_baselines import DDPG
 
 import numpy as np
+import time
 
 def evaluate(env, model, num_steps=1000):
   """
@@ -30,8 +31,12 @@ def evaluate(env, model, num_steps=1000):
       # Stats
       episode_rewards[-1] += reward
       if done:
+          print("Episode reward: ", episode_rewards[-1])
+          time.sleep(1)
           obs = env.reset()
           episode_rewards.append(0.0)
+
+
   # Compute mean reward for the last 100 episodes
   mean_100ep_reward = round(np.mean(episode_rewards[-100:]), 1)
   print("Mean reward:", mean_100ep_reward, "Num episodes:", len(episode_rewards))
@@ -41,8 +46,9 @@ def evaluate(env, model, num_steps=1000):
 
 def test_DDPG( env, out_dir, seed=None, **kwargs):
 
-  model = DDPG.load(os.path.join(out_dir,'best_model.pkl'))
+  model = DDPG.load(os.path.join(out_dir,'final_model.pkl'), env=env)
 
+  #model.learn(total_timesteps=10000)
   # Evaluate the trained agent
   mean_reward = evaluate(env, model, num_steps=5000)
 
