@@ -8,13 +8,8 @@ parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
 # import RL agent
-from stable_baselines.deepq.policies import MlpPolicy as policy
-from stable_baselines import DDPG
-
-# Fix for breaking change for DDPG buffer in v2.6.0
-#if pkg_resources.get_distribution("stable_baselines").version >= "2.6.0":
-#    os.sys.modules['stable_baselines.ddpg.memory'] = stable_baselines.deepq.replay_buffer
-#    stable_baselines.deepq.replay_buffer.Memory = stable_baselines.deepq.replay_buffer.ReplayBuffer
+from stable_baselines.sac.policies import MlpPolicy, LnMlpPolicy
+from stable_baselines import SAC
 
 import numpy as np
 import time
@@ -49,9 +44,9 @@ def evaluate(env, model, num_steps=1000):
   return mean_100ep_reward
 
 
-def test_DDPG( env, out_dir, seed=None, **kwargs):
+def test_SAC( env, out_dir, seed=None, **kwargs):
 
-  model = DDPG.load(os.path.join(out_dir,'final_model.pkl'), env=env)
+  model = SAC.load(os.path.join(out_dir,'final_model.pkl'), env=env)
 
   #model.learn(total_timesteps=10000)
   # Evaluate the trained agent

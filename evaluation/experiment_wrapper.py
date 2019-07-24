@@ -24,6 +24,8 @@ def main(exp_name, output_dir, do_train, do_test):
     for task in exp['tasks']:
 
         # Get Gym environment
+        renders = True if do_test else False
+        task['env_params']['renders'] = renders
         env = env = gym.make(task['env_id'], **task['env_params'])
         output_exp_dir = os.path.join(output_dir,exp_name, task['sub_name'])
 
@@ -32,7 +34,7 @@ def main(exp_name, output_dir, do_train, do_test):
         tf.reset_default_graph()
         set_global_seed(seed)
         env.seed(seed)
-
+        print('ciao1')
         # Should set a logger somehow
         #
 

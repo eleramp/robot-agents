@@ -8,22 +8,22 @@ os.sys.path.insert(0, parentdir)
 
 
 # import RL agent
-from stable_baselines.ddpg.policies import MlpPolicy, LnMlpPolicy
-from stable_baselines.ddpg.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
-from stable_baselines import DDPG
 from stable_baselines.bench import Monitor
 from stable_baselines.results_plotter import load_results, ts2xy
 
-# Fix for breaking change for DDPG buffer in v2.6.0
-#if pkg_resources.get_distribution("stable_baselines").version >= "2.6.0":
-#    os.sys.modules['stable_baselines.ddpg.memory'] = stable_baselines.deepq.replay_buffer
-#    stable_baselines.deepq.replay_buffer.Memory = stable_baselines.deepq.replay_buffer.ReplayBuffer
+from stable_baselines.sac.policies import MlpPolicy, LnMlpPolicy
+from stable_baselines import SAC
+
+from stable_baselines.ppo2.ppo2 import constfn
+from robot_agents.utils import linear_schedule
 
 #
 import numpy as np
 import math as m
 global output_dir
+
 best_mean_reward, n_steps = -np.inf, 0
+
 def callback(_locals, _globals):
     """
     Callback called at each step (for DQN an others) or after n steps (see ACER or PPO2)
@@ -51,7 +51,8 @@ def callback(_locals, _globals):
     # Returning False will stop training early
     return True
 
-def train_DDPG( env, out_dir, seed=None, **kwargs):
+
+def train_SAC( env, out_dir, seed=None, **kwargs):
 
     # Logs will be saved in log_dir/monitor.csv
     global output_dir
@@ -60,12 +61,16 @@ def train_DDPG( env, out_dir, seed=None, **kwargs):
     os.makedirs(log_dir, exist_ok=True)
     env = Monitor(env, log_dir+'/', allow_early_resets=True)
 
+    # Delete keys so the dict can be pass to the model constructor
     policy = kwargs['policy']
     n_timesteps = kwargs['n_timesteps']
-    noise_type = kwargs['noise_type']
+    noise_type = None
+    if 'noise_type' in kwargs:
+        noise_type = kwargs['noise_type']
+        del kwargs['noise_type']
     del kwargs['policy']
     del kwargs['n_timesteps']
-    del kwargs['noise_type']
+
 
     ''' Parameter space noise:
     injects randomness directly into the parameters of the agent, altering the types of decisions it makes
@@ -73,7 +78,6 @@ def train_DDPG( env, out_dir, seed=None, **kwargs):
 
     # the noise objects for DDPG
     nb_actions = env.action_space.shape[-1]
-    param_noise = None
     action_noise = None
     if not noise_type is None:
 
@@ -81,11 +85,7 @@ def train_DDPG( env, out_dir, seed=None, **kwargs):
 
             current_noise_type = current_noise_type.strip()
 
-            if 'adaptive-param' in current_noise_type:
-                _, stddev = current_noise_type.split('_')
-                param_noise = AdaptiveParamNoiseSpec(initial_stddev=float(stddev), desired_action_stddev=float(stddev))
-
-            elif 'normal' in current_noise_type:
+            if 'normal' in current_noise_type:
                 _, stddev = current_noise_type.split('_')
                 action_noise = NormalActionNoise(mean=np.zeros(nb_actions), sigma=float(stddev) * np.ones(nb_actions))
 
@@ -97,18 +97,27 @@ def train_DDPG( env, out_dir, seed=None, **kwargs):
             else:
                 raise RuntimeError('unknown noise type "{}"'.format(current_noise_type))
 
+    # Create learning rate schedule
+    for key in ['learning_rate', 'cliprange']:
+        if key in kwargs:
+            if isinstance(kwargs[key], str):
+                schedule, initial_value = kwargs[key].split('_')
+                initial_value = float(initial_value)
+                kwargs[key] = linear_schedule(initial_value)
+            elif isinstance(kwargs[key], float):
+                kwargs[key] = constfn(kwargs[key])
+            else:
+                raise ValueError('Invalid valid for {}: {}'.format(key, hyperparams[key]))
 
     if 'continue' in kwargs and kwargs['continue'] is True:
         # Continue training
         print("Loading pretrained agent")
-        # Policy should not be changed
-        del kwargs['policy']
-        model = DDPG.load(os.path.join(out_dir,'final_model.pkl'), env=env,
+        model = SAC.load(os.path.join(out_dir,'final_model.pkl'), env=env,
                          tensorboard_log=os.path.join(log_dir,'tb'), verbose=1, **kwargs)
     else:
-        model = DDPG(policy, env, param_noise=param_noise, action_noise=action_noise,
-                verbose=1, tensorboard_log=os.path.join(log_dir,'tb'),full_tensorboard_log=False, **kwargs)
+        model = SAC(policy, env, action_noise=action_noise,
+                    verbose=1, tensorboard_log=os.path.join(log_dir,'tb'), full_tensorboard_log=False, **kwargs)
 
-    model.learn(total_timesteps=n_timesteps, seed=seed, callback=callback)
+    model.learn(total_timesteps=n_timesteps, seed=seed, callback=callback, log_interval=10)
 
     return model
