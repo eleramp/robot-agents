@@ -13,6 +13,7 @@ from stable_baselines.results_plotter import load_results, ts2xy
 
 from stable_baselines.sac.policies import MlpPolicy, LnMlpPolicy
 from stable_baselines import SAC
+from stable_baselines_agents.sac.sac_residual import SAC_residual
 
 from stable_baselines.ppo2.ppo2 import constfn
 from robot_agents.utils import linear_schedule
@@ -32,21 +33,23 @@ def callback(_locals, _globals):
     """
     global n_steps, best_mean_reward
     # Print stats every 1000 calls
-    if (n_steps + 1) % 500 == 0:
-        # Evaluate policy training performance
-        x, y = ts2xy(load_results(os.path.join(output_dir,'log')), 'timesteps')
-        if len(x) > 0:
-            mean_reward = np.mean(y[-100:])
-            print(x[-1], 'timesteps')
+    if 'num_episodes' in _locals:
+        if _locals['num_episodes'] % 10 == 0:
+            # Evaluate policy training performance
+            if len(_locals['episode_rewards'][-101:-1]) == 0:
+                mean_reward = -np.inf
+            else:
+                mean_reward = round(float(np.mean(_locals['episode_rewards'][-101:-1])), 1)
+
             print("Best mean reward: {:.2f} - Last mean reward per episode: {:.2f}".format(best_mean_reward, mean_reward))
 
             # New best model, you could save the agent here
             if mean_reward > best_mean_reward:
                 best_mean_reward = mean_reward
-            if (n_steps + 1) % 500000 == 0:
+            if _locals['num_episodes'] % 100 == 0:
                 # Save model
-                print("Saving model at iter {}".format(x[-1]))
-                _locals['self'].save(os.path.join(output_dir, str(x[-1])+'model.pkl'))
+                print("Saving model at iter {}".format(_locals['step']))
+                locals['self'].save(os.path.join(output_dir, str(_locals['step'])+'model.pkl'))
     n_steps += 1
     # Returning False will stop training early
     return True
@@ -71,12 +74,7 @@ def train_SAC( env, out_dir, seed=None, **kwargs):
     del kwargs['policy']
     del kwargs['n_timesteps']
 
-
-    ''' Parameter space noise:
-    injects randomness directly into the parameters of the agent, altering the types of decisions it makes
-    such that they always fully depend on what the agent currently senses. '''
-
-    # the noise objects for DDPG
+    # the noise objects - usually not necessary for SAC but can help for hard exploration tasks
     nb_actions = env.action_space.shape[-1]
     action_noise = None
     if not noise_type is None:
@@ -98,7 +96,7 @@ def train_SAC( env, out_dir, seed=None, **kwargs):
                 raise RuntimeError('unknown noise type "{}"'.format(current_noise_type))
 
     # Create learning rate schedule
-    for key in ['learning_rate', 'cliprange']:
+    for key in ['learning_rate', 'learning_rate_pi', 'cliprange']:
         if key in kwargs:
             if isinstance(kwargs[key], str):
                 schedule, initial_value = kwargs[key].split('_')
@@ -115,7 +113,9 @@ def train_SAC( env, out_dir, seed=None, **kwargs):
         model = SAC.load(os.path.join(out_dir,'final_model.pkl'), env=env,
                          tensorboard_log=os.path.join(log_dir,'tb'), verbose=1, **kwargs)
     else:
-        model = SAC(policy, env, action_noise=action_noise,
+        if 'continue' in kwargs:
+            del kwargs['continue']
+        model = SAC_residual(policy, env, action_noise=action_noise,
                     verbose=1, tensorboard_log=os.path.join(log_dir,'tb'), full_tensorboard_log=False, **kwargs)
 
     model.learn(total_timesteps=n_timesteps, seed=seed, callback=callback, log_interval=10)

@@ -25,7 +25,9 @@ def evaluate(env, model, num_steps=1000):
   obs = env.reset()
   for i in range(num_steps):
       # _states are only useful when using LSTM policies
-      action, _states = model.predict(obs)
+
+      action, _states = model.predict(obs, deterministic=False)
+
       obs, reward, done, info = env.step(action)
 
       # Stats
