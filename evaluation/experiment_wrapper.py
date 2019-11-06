@@ -27,7 +27,6 @@ def main(exp_name, output_dir, do_train, do_test):
         renders = True #if do_test else False
         task['env_params']['renders'] = renders
         env = env = gym.make(task['env_id'], **task['env_params'])
-        output_exp_dir = os.path.join(output_dir, exp_name, task['sub_name'])
 
         # Seed everything to make things reproducible.
         seed = task['seed']
@@ -39,13 +38,14 @@ def main(exp_name, output_dir, do_train, do_test):
 
         #run algorithm
         rl_library, algo_name, algo_params = exp['algo']['RLlibrary'], exp['algo']['name'],exp['algo']['params']
+        output_exp_dir = os.path.join(output_dir, exp_name, algo_name, task['sub_name'])
 
         if do_train:
             model = robot_agents.ALGOS[rl_library][algo_name](env, output_exp_dir, seed, **algo_params)
 
             if not model is None:
-                print("Saving model.pkl to ",output_exp_dir)
-                model.save(os.path.join(output_exp_dir,"final_model.pkl"))
+                print("Saving model.pkl to ", output_exp_dir)
+                model.save(os.path.join(output_exp_dir, "final_model.pkl"))
 
         elif do_test:
             algo_name = algo_name+'_test'

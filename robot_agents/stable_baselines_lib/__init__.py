@@ -4,3 +4,4 @@ from .deepq.train_deepq import train_DQN
 from .deepq.test_deepq import test_DQN
 from .sac.train_sac import train_SAC
 from .sac.test_sac import test_SAC
+from .her.train_her import train_HER

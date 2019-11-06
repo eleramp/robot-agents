@@ -8,11 +8,10 @@ os.sys.path.insert(0, parentdir)
 
 
 # import RL agent
-from stable_baselines.ddpg.policies import MlpPolicy, LnMlpPolicy
 from stable_baselines.ddpg.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
 from stable_baselines import DDPG
 from stable_baselines.bench import Monitor
-from stable_baselines.results_plotter import load_results, ts2xy
+from robot_agents.utils import log_callback
 
 # Fix for breaking change for DDPG buffer in v2.6.0
 #if pkg_resources.get_distribution("stable_baselines").version >= "2.6.0":
@@ -21,35 +20,7 @@ from stable_baselines.results_plotter import load_results, ts2xy
 
 #
 import numpy as np
-import math as m
 global output_dir
-best_mean_reward, n_steps = -np.inf, 0
-def callback(_locals, _globals):
-    """
-    Callback called at each step (for DQN an others) or after n steps (see ACER or PPO2)
-    :param _locals: (dict)
-    :param _globals: (dict)
-    """
-    global n_steps, best_mean_reward
-    # Print stats every 1000 calls
-    if (n_steps + 1) % 500 == 0:
-        # Evaluate policy training performance
-        x, y = ts2xy(load_results(os.path.join(output_dir,'log')), 'timesteps')
-        if len(x) > 0:
-            mean_reward = np.mean(y[-100:])
-            print(x[-1], 'timesteps')
-            print("Best mean reward: {:.2f} - Last mean reward per episode: {:.2f}".format(best_mean_reward, mean_reward))
-
-            # New best model, you could save the agent here
-            if mean_reward > best_mean_reward:
-                best_mean_reward = mean_reward
-            if (n_steps + 1) % 500000 == 0:
-                # Save model
-                print("Saving model at iter {}".format(x[-1]))
-                _locals['self'].save(os.path.join(output_dir, str(x[-1])+'model.pkl'))
-    n_steps += 1
-    # Returning False will stop training early
-    return True
 
 def train_DDPG( env, out_dir, seed=None, **kwargs):
 
@@ -106,9 +77,11 @@ def train_DDPG( env, out_dir, seed=None, **kwargs):
         model = DDPG.load(os.path.join(out_dir,'final_model.pkl'), env=env,
                          tensorboard_log=os.path.join(log_dir,'tb'), verbose=1, **kwargs)
     else:
-        model = DDPG(policy, env, param_noise=param_noise, action_noise=action_noise,
+        if 'continue' in kwargs:
+            del kwargs['continue']
+        model = DDPG(policy, env, param_noise=param_noise, action_noise=action_noise, seed=seed,
                 verbose=1, tensorboard_log=os.path.join(log_dir,'tb'),full_tensorboard_log=False, **kwargs)
 
-    model.learn(total_timesteps=n_timesteps, seed=seed, callback=callback)
+    model.learn(total_timesteps=n_timesteps, callback=log_callback)
 
     return model

@@ -44,10 +44,10 @@ register_experiment({
                 },
                 ],
     'algo': {   'name' : 'residual_sac',
-                'RLlibrary': 'stable_baselines_agents',
+                'RLlibrary': 'stable_baselines_lib',
                 'description': 'sac algorithm from stable_baselines library',
                 'params' : {#'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
-                            'policy': 'LnMlpPolicy', #options: MlpPolicy e cnns ones
+                            'policy': 'LnMlpInitZeroPolicy', #options: MlpPolicy e cnns ones
                             'n_timesteps': 1000000,
                             'learning_rate': 'lin_3e-4',
                             'learning_rate_pi': 'lin_3e-4',
@@ -65,13 +65,13 @@ register_experiment({
 register_experiment({
     'name': 'SQ_DRL_1',
     'description': 'Push task with iCub robot, simulated in PyBullet by using DDPG algorithm',
-    'tasks': [  { 'sub_name':'icub_grasp_residual/terminal_failure', 'env_id':_env_prefix+'iCubGraspResidual-v0', 'seed': 1,
+    'tasks': [  { 'sub_name':'icub_grasp_residual/terminal_failure', 'env_id':_env_prefix+'iCubGraspResidualGoal-v0', 'seed': 1,
                 'env_params':{'control_arm':'r', 'rnd_obj_pose':0.06, 'noise_pcl': 0.012,
                               'maxSteps':3000, 'useOrientation':1, 'renders':True, 'terminal_failure': True},
                 },
                 ],
-    'algo': {   'name' : 'residual_sac',
-                'RLlibrary': 'stable_baselines_agents',
+    'algo': {   'name': 'residual_sac',
+                'RLlibrary': 'stable_baselines_lib',
                 'description': 'sac algorithm from stable_baselines library',
                 'params' : {#'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
                             'policy': 'LnMlpPolicy', #options: MlpPolicy e cnns ones
@@ -90,53 +90,32 @@ register_experiment({
 })
 
 register_experiment({
-    'name': 'SQ_DRL_2',
+    'name': 'SQ_DRL_HER',
     'description': 'Push task with iCub robot, simulated in PyBullet by using DDPG algorithm',
-    'tasks': [  { 'sub_name':'icub_grasp_residual/NO_terminal_failure', 'env_id':_env_prefix+'iCubGraspResidual-v0', 'seed': 1,
-                'env_params':{'control_arm':'r', 'rnd_obj_pose':0.06, 'noise_pcl': 0.012,
-                              'maxSteps':3000, 'useOrientation':1, 'renders':True, 'terminal_failure': False},
-                },
-                ],
-    'algo': {   'name' : 'residual_sac',
-                'RLlibrary': 'stable_baselines_agents',
-                'description': 'sac algorithm from stable_baselines library',
-                'params' : {#'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
-                            'policy': 'LnMlpPolicy', #options: MlpPolicy e cnns ones
-                            'n_timesteps': 1000000,
-                            'learning_rate': 3e-4,
-                            'learning_rate_pi': 3e-4,
-                            'batch_size': 64,
-                            'gamma': 0.99,
-                            'train_freq': 10,
-                            'gradient_steps': 1,
-                            'learning_starts': 1000,
-                            'buffer_size': 1000000,
-                            'continue': False},
-                },
+    'tasks': [{'sub_name': 'icub_grasp_residual', 'env_id': _env_prefix+'iCubGraspResidualGoal-v0', 'seed': 1,
+               'env_params': {'control_arm': 'r', 'rnd_obj_pose': 0.06, 'noise_pcl': 0.012, 'maxSteps': 3000,
+                               'useOrientation': 1, 'renders': True, 'terminal_failure': True},
+              },
+             ],
+    'algo': {'name': 'her',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'algo_name': 'sac_residual',
+                        #'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
+                        'policy': 'LnMlpPolicy', #options: MlpPolicy e cnns ones
+                        'goal_selection_strategy': 'future',
+                        'n_sampled_goal': 4,
+                        'n_timesteps': 1000000,
+                        'learning_rate': 3e-4,
+                        'learning_rate_pi': 3e-4,
+                        'batch_size': 64,
+                        'gamma': 0.99,
+                        'train_freq': 10,
+                        'gradient_steps': 1,
+                        'learning_starts': 1,
+                        'buffer_size': 1000000,
+                        'continue': False},
+            },
+
 })
 
-register_experiment({
-    'name': 'SQ_DRL_3_detactions',
-    'description': 'Push task with iCub robot, simulated in PyBullet by using DDPG algorithm',
-    'tasks': [  { 'sub_name':'icub_grasp_residual/terminal_failure', 'env_id':_env_prefix+'iCubGraspResidual-v0', 'seed': 1,
-                'env_params':{'control_arm':'r', 'rnd_obj_pose':0.06, 'noise_pcl': 0.012,
-                              'maxSteps':3000, 'useOrientation':1, 'renders':True, 'terminal_failure': True},
-                },
-                ],
-    'algo': {   'name' : 'residual_sac',
-                'RLlibrary': 'stable_baselines_agents',
-                'description': 'sac algorithm from stable_baselines library',
-                'params' : {#'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
-                            'policy': 'LnMlpPolicy', #options: MlpPolicy e cnns ones
-                            'n_timesteps': 1000000,
-                            'learning_rate': 3e-4,
-                            'learning_rate_pi': 3e-4,
-                            'batch_size': 64,
-                            'gamma': 0.99,
-                            'train_freq': 10,
-                            'gradient_steps': 1,
-                            'learning_starts': 50,
-                            'buffer_size': 1000000,
-                            'continue': False},
-                },
-})
