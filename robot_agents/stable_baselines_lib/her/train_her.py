@@ -113,7 +113,6 @@ def train_HER(env, out_dir, seed=None, **kwargs):
         if 'continue' in kwargs:
             del kwargs['continue']
         model = HER(policy, env, agent,
-                    goal_selection_strategy=goal_selection_strategy, n_sampled_goal=n_sampled_goal,
-                    verbose=1, **kwargs)
+                    goal_selection_strategy=goal_selection_strategy, n_sampled_goal=n_sampled_goal, verbose=1, **kwargs)
 
     model.learn(total_timesteps=n_timesteps, callback=log_callback)

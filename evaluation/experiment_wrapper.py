@@ -70,7 +70,7 @@ def parser_args():
     parser.add_argument('--test', action='store_const', const=1, dest="do_test",
                         help='do testing')
 
-    parser.add_argument('--dir', type=str, action='store', dest='output_dir', default = '$HOME/robot_agents_log/',
+    parser.add_argument('--dir', type=str, action='store', dest='output_dir', default = '~/robot_agents_log/',
                         help='directory where trained model, params and logs should be stored')
 
     args = parser.parse_args()
