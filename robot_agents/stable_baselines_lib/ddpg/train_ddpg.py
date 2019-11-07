@@ -11,7 +11,7 @@ os.sys.path.insert(0, parentdir)
 from stable_baselines.ddpg.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
 from stable_baselines import DDPG
 from stable_baselines.bench import Monitor
-from robot_agents.utils import log_callback
+from stable_baselines.results_plotter import load_results, ts2xy
 
 # Fix for breaking change for DDPG buffer in v2.6.0
 #if pkg_resources.get_distribution("stable_baselines").version >= "2.6.0":
@@ -20,14 +20,37 @@ from robot_agents.utils import log_callback
 
 #
 import numpy as np
-global output_dir
 
-def train_DDPG( env, out_dir, seed=None, **kwargs):
+
+best_mean_reward, n_steps = -np.inf, 0
+def log_callback(_locals, _globals):
+
+    global n_steps, best_mean_reward, log_dir
+    # Print stats every 1000 calls
+    if n_steps % 3000 == 0:
+        # Evaluate policy training performance
+        x, y = ts2xy(load_results(log_dir), 'timesteps')
+        if len(x) > 0:
+            mean_reward = np.mean(y[-100:])
+            print(x[-1], 'timesteps')
+            print("Best mean reward: {:.2f} - Last mean reward per episode: {:.2f}".format(best_mean_reward, mean_reward))
+
+            # New best model, you could save the agent here
+            if mean_reward > best_mean_reward:
+                best_mean_reward = mean_reward
+                # Example for saving best model
+            print("Saving new model")
+            _locals['self'].save(os.path.join(output_dir, str(n_steps)+'_model_r_'+str(best_mean_reward)+'.pkl'))
+    n_steps += 1
+    return True
+
+
+def train_DDPG(env, out_dir, seed=None, **kwargs):
 
     # Logs will be saved in log_dir/monitor.csv
-    global output_dir
+    global output_dir, log_dir
     output_dir = out_dir
-    log_dir = os.path.join(out_dir,'log')
+    log_dir = os.path.join(out_dir, 'log')
     os.makedirs(log_dir, exist_ok=True)
     env = Monitor(env, log_dir+'/', allow_early_resets=True)
 

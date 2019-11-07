@@ -6,6 +6,7 @@ from robot_agents.stable_baselines_lib.sac.sac_residual import SAC_residual
 
 ALGOS = {
     'stable_baselines_lib': {'ddpg': robot_agents.stable_baselines_lib.train_DDPG,
+                             'td3': robot_agents.stable_baselines_lib.train_TD3,
                              'deepq': robot_agents.stable_baselines_lib.train_DQN,
                              'residual_sac': robot_agents.stable_baselines_lib.train_SAC,
                              'her': robot_agents.stable_baselines_lib.train_HER,

@@ -1,3 +1,6 @@
+import gym
+
+
 #add parent dir to find package. Only needed for source code build, pip install doesn't need it.
 import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -6,7 +9,7 @@ os.sys.path.insert(0, parentdir)
 
 # import RL agent
 from stable_baselines.deepq.policies import MlpPolicy as policy
-from stable_baselines import HER
+from stable_baselines import TD3
 
 # Fix for breaking change for DDPG buffer in v2.6.0
 #if pkg_resources.get_distribution("stable_baselines").version >= "2.6.0":
@@ -38,6 +41,7 @@ def evaluate(env, model, num_steps=1000):
           obs = env.reset()
           episode_rewards.append(0.0)
 
+
   # Compute mean reward for the last 100 episodes
   mean_100ep_reward = round(np.mean(episode_rewards[-100:]), 1)
   print("Mean reward:", mean_100ep_reward, "Num episodes:", len(episode_rewards))
@@ -45,9 +49,9 @@ def evaluate(env, model, num_steps=1000):
   return mean_100ep_reward
 
 
-def test_HER( env, out_dir, seed=None, **kwargs):
+def test_TD3( env, out_dir, seed=None, **kwargs):
 
-  model = HER.load(os.path.join(out_dir,'final_model.pkl'), env=env)
+  model = TD3.load(os.path.join(out_dir,'final_model.pkl'), env=env)
 
   #model.learn(total_timesteps=10000)
   # Evaluate the trained agent

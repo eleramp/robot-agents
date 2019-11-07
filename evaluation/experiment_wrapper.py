@@ -24,9 +24,9 @@ def main(exp_name, output_dir, do_train, do_test):
     for task in exp['tasks']:
 
         # Get Gym environment
-        renders = True #if do_test else False
+        renders = True if do_test else False
         task['env_params']['renders'] = renders
-        env = env = gym.make(task['env_id'], **task['env_params'])
+        env = gym.make(task['env_id'], **task['env_params'])
 
         # Seed everything to make things reproducible.
         seed = task['seed']
