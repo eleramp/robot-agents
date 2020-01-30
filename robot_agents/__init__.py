@@ -16,8 +16,10 @@ ALGOS = {
                              'ddpg_test': robot_agents.stable_baselines_lib.test_DDPG,
                              'deepq_test': robot_agents.stable_baselines_lib.test_DQN,
                              'residual_sac_test': robot_agents.stable_baselines_lib.test_SAC,
+                             'sac_test': robot_agents.stable_baselines_lib.test_SAC,
+                             'td3_test': robot_agents.stable_baselines_lib.test_TD3,
+                             'her_test': robot_agents.stable_baselines_lib.test_HER,
                              },
     'baselines_lib': {'deepq': robot_agents.baselines_lib.train_DQN,
                      },
 }
-
