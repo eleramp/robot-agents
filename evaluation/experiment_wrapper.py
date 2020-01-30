@@ -11,6 +11,7 @@ from evaluation import experiment_registration
 import robot_agents
 
 import argparse
+import csv
 
 def main(exp_name, output_dir, do_train, do_test):
 
@@ -44,6 +45,14 @@ def main(exp_name, output_dir, do_train, do_test):
 
         #run algorithm
 
+
+        csv_file = os.path.join(output_exp_dir,"exp_param.csv")
+        try:
+            with open(csv_file, 'w') as f:
+                for key in exp.keys():
+                    f.write("%s,%s\n"%(key,exp[key]))
+        except IOError:
+            print("I/O error")
 
         if do_train:
             model = robot_agents.ALGOS[rl_library][algo_name](env, output_exp_dir, seed, **algo_params)
