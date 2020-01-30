@@ -232,32 +232,106 @@ register_experiment({
 })
 
 register_experiment({
-    'name': 'SQ_DRL_HER',
+    'name': 'SQ_DRL_HER_nosq',
     'description': 'Push task with iCub robot, simulated in PyBullet by using DDPG algorithm',
     'tasks': [{'sub_name': 'icub_grasp_residual', 'env_id': _env_prefix+'iCubGraspResidualGoal-v0', 'seed': 1,
-               'env_params': {'control_arm': 'r', 'rnd_obj_pose': 0.06, 'noise_pcl': 0.012, 'maxSteps': 3000,
-                               'useOrientation': 1, 'renders': True, 'terminal_failure': True},
+               'env_params': {
+                            'log_file': '',
+                            'control_arm': 'r',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.0,
+                            'noise_pcl': 0.0,
+                            'use_superq': 0,
+                            'max_steps': 1000,
+                            'renders': False}
               },
              ],
     'algo': {'name': 'her',
              'RLlibrary': 'stable_baselines_lib',
              'description': 'HER from stable_baselines library',
-             'params': {'algo_name': 'sac_residual',
-                        #'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
-                        'policy': 'LnMlpPolicy', #options: MlpPolicy e cnns ones
+             'params': {'algo_name': 'td3',
+                        'random_exploration': 0.3,
                         'goal_selection_strategy': 'future',
                         'n_sampled_goal': 4,
+                        'policy': 'LnMlpPolicy',  # options: MlpPolicy e cnns ones
+                        'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
                         'n_timesteps': 1000000,
-                        'learning_rate': 3e-4,
-                        'learning_rate_pi': 3e-4,
-                        'batch_size': 64,
-                        'gamma': 0.99,
-                        'train_freq': 10,
-                        'gradient_steps': 1,
-                        'learning_starts': 1,
+                        'gradient_steps': 40,
+                        'batch_size': 128,
+                        'gamma': 0.95,
                         'buffer_size': 1000000,
-                        'continue': False},
-            },
-
+                        'n_cpu_tf_sess':4,
+                        'policy_kwargs': {'layers': [256, 256, 256]}},
+             },
 })
 
+register_experiment({
+    'name': 'SQ_DRL_HER_sisq',
+    'description': 'Push task with iCub robot, simulated in PyBullet by using DDPG algorithm',
+    'tasks': [{'sub_name': 'icub_grasp_residual', 'env_id': _env_prefix+'iCubGraspResidualGoal-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_arm': 'r',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.0,
+                            'noise_pcl': 0.0,
+                            'use_superq': 1,
+                            'max_steps': 1000,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'her',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'algo_name': 'td3',
+                        'random_exploration': 0.3,
+                        'goal_selection_strategy': 'future',
+                        'n_sampled_goal': 4,
+                        'policy': 'LnMlpPolicy',  # options: MlpPolicy e cnns ones
+                        'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
+                        'n_timesteps': 1000000,
+                        'gradient_steps': 40,
+                        'batch_size': 128,
+                        'gamma': 0.95,
+                        'buffer_size': 1000000,
+                        'n_cpu_tf_sess':4,
+                        'policy_kwargs': {'layers': [256,256,256]}},
+             },
+})
+
+register_experiment({
+    'name': 'SQ_DRL_HER_nosq_quat',
+    'description': 'Push task with iCub robot, simulated in PyBullet by using DDPG algorithm',
+    'tasks': [{'sub_name': 'icub_grasp_residual', 'env_id': _env_prefix+'iCubGraspResidualGoal-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_arm': 'r',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 1,
+                            'obj_pose_rnd_std': 0.0,
+                            'noise_pcl': 0.0,
+                            'use_superq': 0,
+                            'max_steps': 1000,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'her',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'algo_name': 'td3',
+                        'random_exploration': 0.3,
+                        'goal_selection_strategy': 'future',
+                        'n_sampled_goal': 4,
+                        'policy': 'LnMlpPolicy',  # options: MlpPolicy e cnns ones
+                        'noise_type' : 'normal_0.5373', #options: normal, adaptive-param (can be multiple)
+                        'n_timesteps': 1000000,
+                        'gradient_steps': 40,
+                        'batch_size': 128,
+                        'gamma': 0.95,
+                        'buffer_size': 1000000,
+                        'n_cpu_tf_sess':4,
+                        'policy_kwargs': {'layers': [256, 256, 256]}},
+             },
+})
