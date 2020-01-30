@@ -23,9 +23,15 @@ def main(exp_name, output_dir, do_train, do_test):
 
     for task in exp['tasks']:
 
+        rl_library, algo_name, algo_params = exp['algo']['RLlibrary'], exp['algo']['name'], exp['algo']['params']
+        output_exp_dir = os.path.join(output_dir, exp_name, task['sub_name'])  # algo_name, task['sub_name'])
+        os.makedirs(output_exp_dir, exist_ok=True)
+
         # Get Gym environment
         renders = True if do_test else False
         task['env_params']['renders'] = renders
+        if 'log_file' in task['env_params']:
+            task['env_params']['log_file'] = output_exp_dir
         env = gym.make(task['env_id'], **task['env_params'])
 
         # Seed everything to make things reproducible.
@@ -37,8 +43,7 @@ def main(exp_name, output_dir, do_train, do_test):
         #
 
         #run algorithm
-        rl_library, algo_name, algo_params = exp['algo']['RLlibrary'], exp['algo']['name'],exp['algo']['params']
-        output_exp_dir = os.path.join(output_dir, exp_name, algo_name, task['sub_name'])
+
 
         if do_train:
             model = robot_agents.ALGOS[rl_library][algo_name](env, output_exp_dir, seed, **algo_params)
