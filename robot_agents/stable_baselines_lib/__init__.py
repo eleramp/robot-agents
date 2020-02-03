@@ -5,7 +5,6 @@ from .td3.train_td3 import train_TD3_residual
 from .td3.test_td3 import test_TD3
 from .deepq.train_deepq import train_DQN
 from .deepq.test_deepq import test_DQN
-from .sac.train_sac_residual import train_SAC_residual
 from .sac.train_sac import train_SAC
 from .sac.train_sac import train_SAC_residual
 from .sac.test_sac import test_SAC
