@@ -165,7 +165,7 @@ def train_SAC_residual( env, out_dir, seed=None, **kwargs):
     if 'continue' in kwargs and kwargs['continue'] is True:
         # Continue training
         print("Loading pretrained agent")
-        model = SAC.load(os.path.join(out_dir,'final_model.pkl'), env=env,
+        model = SAC_residual.load(os.path.join(out_dir,'final_model.pkl'), env=env,
                          tensorboard_log=os.path.join(log_dir,'tb'), verbose=1, **kwargs)
     else:
         if 'continue' in kwargs:

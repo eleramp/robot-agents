@@ -150,7 +150,7 @@ def train_TD3_residual(env, out_dir, seed=None, **kwargs):
         print("Loading pretrained agent")
         # Policy should not be changed
         del kwargs['policy']
-        model = TD3.load(os.path.join(out_dir,'final_model.pkl'), env=env,
+        model = TD3_residual.load(os.path.join(out_dir,'final_model.pkl'), env=env,
                          tensorboard_log=os.path.join(log_dir,'tb'), verbose=1, **kwargs)
     else:
         if 'continue' in kwargs:
