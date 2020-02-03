@@ -12,7 +12,7 @@ from stable_baselines.common import tf_util, OffPolicyRLModel, SetVerbosity, Ten
 from stable_baselines.common.vec_env import VecEnv
 from stable_baselines.deepq.replay_buffer import ReplayBuffer
 from stable_baselines.ppo2.ppo2 import safe_mean, get_schedule_fn
-from stable_baselines_lib.sac.policy_residual import SACPolicy
+from robot_agents.stable_baselines_lib.sac.policy_residual import SACPolicy
 from stable_baselines import logger
 
 
