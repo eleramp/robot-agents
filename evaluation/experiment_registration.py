@@ -530,16 +530,16 @@ register_experiment({
 })
 
 register_experiment({
-    'name': 'SQ_DRL_sisq/pos_orn_constrained_pos_rew_for_1sec_summed_+_vel/icub_grasp_notgoal_residual_3objs',
-    'description': 'only reaching.not goal env. robot observation augmented with linear and angular velocities and pos/orn of all fingertips.action repeat lower (20). reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise. And all components are summed. add check in success (if d<=threshold and object not fallen). also the position is more constrained (from 0.1 to 0.08)',
-    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubGraspResidual-v0', 'seed': 1,
+    'name': 'SQ_DRL_sisq/pos_orn_constrained_pos_rew_for_1sec_summed_+_vel/icub_reach_notgoal_residual_3objs_NOISE_PCL',
+    'description': 'only reaching.not goal env. robot observation augmented with linear and angular velocities and pos/orn of all fingertips.action repeat lower (20). reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubReachResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
                             'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.0,
-                            'noise_pcl': 0.005,
+                            'noise_pcl': 0.003,
                             'use_superq': 1,
                             'max_steps': 800,
                             'renders': False}
@@ -557,7 +557,7 @@ register_experiment({
                         'learning_starts': 1000,
                         'train_freq': 10,
                         'ent_coef': 0.1,
-                        'n_cpu_tf_sess':4,
+                        'n_cpu_tf_sess':32,
                         'policy_kwargs': {'layers': [256,256]},
                         },
              },
@@ -598,8 +598,8 @@ register_experiment({
 })
 
 register_experiment({
-    'name': 'SQ_DRL_sisq/icub_grasp_lift_+-reachingReward_only_stop_grasp',
-    'description': 'grasping 1 object. from scratch (no residual). action repeat 20 invece di 10. max steps 800 non 1000. not goal. higher reward for reaching gp: -10 fall, -1 contact, +3 reach gp, +1*2 for each fingertip contact, +20 lift',
+    'name': 'SQ_DRL_sisq/icub_grasp_lift_+reachingReward_only_stop_grasp_early_stop_lift',
+    'description': 'grasping 1 object. action repeat 15 (+5.) counter step giusto. early stop for lift senza finger contact. reward for reaching gp: -10 fall, -1 contact, +2 reach gp, +1 for each fingertip contact, +20 lift',
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubGraspResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
@@ -640,6 +640,38 @@ register_experiment({
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.0,
                             'max_steps': 1000,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 500000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':4,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'icub_reach_3objs_rnd_pos_orn',
+    'description': 'safe reaching of 3 objects. not goal',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubReach-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_arm': 'r',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.07,
+                            'max_steps': 500,
                             'renders': False}
               },
              ],
