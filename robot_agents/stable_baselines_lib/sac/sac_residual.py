@@ -410,6 +410,7 @@ class SAC_residual(OffPolicyRLModel):
                     # but algorithm operates on tanh-squashed actions therefore simple scaling is used
                     unscaled_action = self.env.action_space.sample()
                     action = scale_action(self.action_space, unscaled_action)
+                    unscaled_action *= 0
                     action *= 0
                 elif np.random.rand() < self.random_exploration:
                     unscaled_action = self.env.action_space.sample()
