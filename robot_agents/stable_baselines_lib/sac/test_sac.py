@@ -10,6 +10,7 @@ os.sys.path.insert(0, parentdir)
 # import RL agent
 from stable_baselines.sac.policies import MlpPolicy, LnMlpPolicy
 from stable_baselines import SAC
+from robot_agents.stable_baselines_lib.sac.sac_residual import SAC_residual
 
 import numpy as np
 import time
@@ -49,6 +50,16 @@ def evaluate(env, model, num_steps=1000):
 def test_SAC( env, out_dir, seed=None, **kwargs):
 
   model = SAC.load(os.path.join(out_dir,'final_model.pkl'), env=env)
+
+  #model.learn(total_timesteps=10000)
+  # Evaluate the trained agent
+  mean_reward = evaluate(env, model, num_steps=5000)
+
+  return
+
+def test_SAC_residual( env, out_dir, seed=None, **kwargs):
+
+  model = SAC_residual.load(os.path.join(out_dir,'final_model.pkl'), env=env)
 
   #model.learn(total_timesteps=10000)
   # Evaluate the trained agent
