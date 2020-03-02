@@ -1,6 +1,5 @@
 import sys
 import time
-import multiprocessing
 from collections import deque
 import warnings
 
@@ -10,16 +9,17 @@ import tensorflow as tf
 from stable_baselines.a2c.utils import total_episode_reward_logger
 from stable_baselines.common import tf_util, OffPolicyRLModel, SetVerbosity, TensorboardWriter
 from stable_baselines.common.vec_env import VecEnv
+from stable_baselines.common.math_util import unscale_action, scale_action
 from stable_baselines.deepq.replay_buffer import ReplayBuffer
 from stable_baselines.ppo2.ppo2 import safe_mean, get_schedule_fn
 from robot_agents.stable_baselines_lib.sac.policy_residual import SACPolicy
 from stable_baselines import logger
 
 
+
 def get_vars(scope):
     """
     Alias for get_trainable_vars
-
     :param scope: (str)
     :return: [tf Variable]
     """
@@ -35,7 +35,6 @@ class SAC_residual(OffPolicyRLModel):
     (https://github.com/rail-berkeley/softlearning/)
     Paper: https://arxiv.org/abs/1801.01290
     Introduction to SAC: https://spinningup.openai.com/en/latest/algorithms/sac.html
-
     :param policy: (SACPolicy or str) The policy model to use (MlpPolicy, CnnPolicy, LnMlpPolicy, ...)
     :param env: (Gym environment or str) The environment to learn from (if registered in Gym, can be str)
     :param gamma: (float) the discount factor
@@ -71,7 +70,7 @@ class SAC_residual(OffPolicyRLModel):
         If None, the number of cpu of the current machine will be used.
     """
 
-    def __init__(self, policy, env, gamma=0.99, learning_rate=3e-4, learning_rate_pi=0.0, buffer_size=50000,
+    def __init__(self, policy, env, gamma=0.99, learning_rate=3e-4, buffer_size=50000,
                  learning_starts=100, train_freq=1, batch_size=64,
                  tau=0.005, ent_coef='auto', target_update_interval=1,
                  gradient_steps=1, target_entropy='auto', action_noise=None,
@@ -80,12 +79,11 @@ class SAC_residual(OffPolicyRLModel):
                  seed=None, n_cpu_tf_sess=None):
 
         super(SAC_residual, self).__init__(policy=policy, env=env, replay_buffer=None, verbose=verbose,
-                                           policy_base=SACPolicy, requires_vec_env=False, policy_kwargs=policy_kwargs,
-                                           seed=seed, n_cpu_tf_sess=n_cpu_tf_sess)
+                                  policy_base=SACPolicy, requires_vec_env=False, policy_kwargs=policy_kwargs,
+                                  seed=seed, n_cpu_tf_sess=n_cpu_tf_sess)
 
         self.buffer_size = buffer_size
         self.learning_rate = learning_rate
-        self.learning_rate_pi = learning_rate_pi
         self.learning_starts = learning_starts
         self.train_freq = train_freq
         self.batch_size = batch_size
@@ -131,7 +129,6 @@ class SAC_residual(OffPolicyRLModel):
         self.entropy = None
         self.target_params = None
         self.learning_rate_ph = None
-        self.learning_rate_pi_ph = None
         self.processed_obs_ph = None
         self.processed_next_obs_ph = None
         self.log_ent_coef = None
@@ -142,7 +139,7 @@ class SAC_residual(OffPolicyRLModel):
     def _get_pretrain_placeholders(self):
         policy = self.policy_tf
         # Rescale
-        deterministic_action = self.deterministic_action * np.abs(self.action_space.low)
+        deterministic_action = unscale_action(self.action_space, self.deterministic_action)
         return policy.obs_ph, self.actions_ph, deterministic_action
 
     def setup_model(self):
@@ -173,13 +170,12 @@ class SAC_residual(OffPolicyRLModel):
                     self.actions_ph = tf.placeholder(tf.float32, shape=(None,) + self.action_space.shape,
                                                      name='actions')
                     self.learning_rate_ph = tf.placeholder(tf.float32, [], name="learning_rate_ph")
-                    self.learning_rate_pi_ph = tf.placeholder(tf.float32, [], name="learning_rate_pi_ph")
 
                 with tf.variable_scope("model", reuse=False):
                     # Create the policy
                     # first return value corresponds to deterministic actions
                     # policy_out corresponds to stochastic actions, used for training
-                    # logp_pi is the log probabilty of actions taken by the policy
+                    # logp_pi is the log probability of actions taken by the policy
                     self.deterministic_action, policy_out, logp_pi = self.policy_tf.make_actor(self.processed_obs_ph)
                     # Monitor the entropy of the policy,
                     # this is not used for training
@@ -253,7 +249,7 @@ class SAC_residual(OffPolicyRLModel):
                     policy_kl_loss = tf.reduce_mean(self.ent_coef * logp_pi - qf1_pi)
 
                     # NOTE: in the original implementation, they have an additional
-                    # regularization loss for the gaussian parameters
+                    # regularization loss for the Gaussian parameters
                     # this is not used for now
                     # policy_loss = (policy_kl_loss + policy_regularization_loss)
                     policy_loss = policy_kl_loss
@@ -269,7 +265,7 @@ class SAC_residual(OffPolicyRLModel):
 
                     # Policy train op
                     # (has to be separate from value train op, because min_qf_pi appears in policy_loss)
-                    policy_optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate_pi_ph)
+                    policy_optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate_ph)
                     policy_train_op = policy_optimizer.minimize(policy_loss, var_list=get_vars('model/pi'))
 
                     # Value train op
@@ -319,7 +315,6 @@ class SAC_residual(OffPolicyRLModel):
                         tf.summary.scalar('ent_coef', self.ent_coef)
 
                     tf.summary.scalar('learning_rate', tf.reduce_mean(self.learning_rate_ph))
-                    tf.summary.scalar('learning_rate_pi', tf.reduce_mean(self.learning_rate_pi_ph))
 
                 # Retrieve parameters that must be saved
                 self.params = get_vars("model")
@@ -332,7 +327,7 @@ class SAC_residual(OffPolicyRLModel):
 
                 self.summary = tf.summary.merge_all()
 
-    def _train_step(self, step, writer, learning_rate, learning_rate_pi):
+    def _train_step(self, step, writer, learning_rate):
         # Sample a batch from the replay buffer
         batch = self.replay_buffer.sample(self.batch_size)
         batch_obs, batch_actions, batch_rewards, batch_next_obs, batch_dones = batch
@@ -343,7 +338,6 @@ class SAC_residual(OffPolicyRLModel):
             self.next_observations_ph: batch_next_obs,
             self.rewards_ph: batch_rewards.reshape(self.batch_size, -1),
             self.terminals_ph: batch_dones.reshape(self.batch_size, -1),
-            self.learning_rate_pi_ph: learning_rate_pi,
             self.learning_rate_ph: learning_rate
         }
 
@@ -386,10 +380,8 @@ class SAC_residual(OffPolicyRLModel):
 
             # Transform to callable if needed
             self.learning_rate = get_schedule_fn(self.learning_rate)
-            self.learning_rate_pi = get_schedule_fn(self.learning_rate_pi)
             # Initial learning rate
             current_lr = self.learning_rate(1)
-            current_lr_pi = self.learning_rate_pi(1)
 
             start_time = time.time()
             episode_rewards = [0.0]
@@ -401,9 +393,6 @@ class SAC_residual(OffPolicyRLModel):
             ep_info_buf = deque(maxlen=100)
             n_updates = 0
             infos_values = []
-            prev_value_loss = [0]
-            curr_value_loss = [0]
-            freeze_policy_lr = True
 
             for step in range(total_timesteps):
                 if callback is not None:
@@ -416,38 +405,27 @@ class SAC_residual(OffPolicyRLModel):
                 # from a uniform distribution for better exploration.
                 # Afterwards, use the learned policy
                 # if random_exploration is set to 0 (normal setting)
-                if (self.num_timesteps < self.learning_starts
-                    or np.random.rand() < self.random_exploration):
-                    # No need to rescale when sampling random action
-                    rescaled_action = action = self.env.action_space.sample()
-                    if np.random.random() < 0.8:
-                        rescaled_action *= 0
-
+                if self.num_timesteps < self.learning_starts:
+                    # actions sampled from action space are from range specific to the environment
+                    # but algorithm operates on tanh-squashed actions therefore simple scaling is used
+                    unscaled_action = self.env.action_space.sample()
+                    action = scale_action(self.action_space, unscaled_action)
+                    action *= 0
+                elif np.random.rand() < self.random_exploration:
+                    unscaled_action = self.env.action_space.sample()
+                    action = scale_action(self.action_space, unscaled_action)
                 else:
-
-                    if len(infos_values) is 0 or abs(np.mean(curr_value_loss)) > 1:
-                        freeze_policy_lr = True
-                        #if np.random.random() < 0.5:
-                        action = self.policy_tf.step(obs[None], deterministic=True).flatten()
-                        #else:
-                        #    action = self.policy_tf.step(obs[None], deterministic=False).flatten()
-
-                    else:
-                        freeze_policy_lr = False
-                        action = self.policy_tf.step(obs[None], deterministic=False).flatten()
-
-                    prev_value_loss = curr_value_loss
-
+                    action = self.policy_tf.step(obs[None], deterministic=False).flatten()
                     # Add noise to the action (improve exploration,
                     # not needed in general)
                     if self.action_noise is not None:
                         action = np.clip(action + self.action_noise(), -1, 1)
-                    # Rescale from [-1, 1] to the correct bounds
-                    rescaled_action = action * np.abs(self.action_space.low)
+                    # inferred actions need to be transformed to environment action_space before stepping
+                    unscaled_action = unscale_action(self.action_space, action)
 
                 assert action.shape == self.env.action_space.shape
 
-                new_obs, reward, done, info = self.env.step(rescaled_action)
+                new_obs, reward, done, info = self.env.step(unscaled_action)
 
                 # Store transition in the replay buffer.
                 self.replay_buffer.add(obs, action, reward, new_obs, float(done))
@@ -478,13 +456,8 @@ class SAC_residual(OffPolicyRLModel):
                         # Compute current learning_rate
                         frac = 1.0 - step / total_timesteps
                         current_lr = self.learning_rate(frac)
-                        if freeze_policy_lr:
-                            current_lr_pi = 0.0
-                        else:
-                            current_lr_pi = self.learning_rate_pi(frac)
-
                         # Update policy and critics (q functions)
-                        mb_infos_vals.append(self._train_step(step, writer, current_lr, current_lr_pi))
+                        mb_infos_vals.append(self._train_step(step, writer, current_lr))
                         # Update target network
                         if (step + grad_step) % self.target_update_interval == 0:
                             # Update target network
@@ -492,8 +465,6 @@ class SAC_residual(OffPolicyRLModel):
                     # Log losses and entropy, useful for monitor training
                     if len(mb_infos_vals) > 0:
                         infos_values = np.mean(mb_infos_vals, axis=0)
-                        curr_value_loss = [infos_values[i] for i in range(len(self.infos_names))
-                                           if self.infos_names[i] is 'value_loss'][0]
 
                 episode_rewards[-1] += reward
                 if done:
@@ -542,7 +513,7 @@ class SAC_residual(OffPolicyRLModel):
             raise ValueError("Error: SAC does not have action probabilities.")
 
         warnings.warn("Even though SAC has a Gaussian policy, it cannot return a distribution as it "
-                      "is squashed by a tanh before being scaled and ouputed.")
+                      "is squashed by a tanh before being scaled and outputed.")
 
         return None
 
@@ -553,7 +524,7 @@ class SAC_residual(OffPolicyRLModel):
         observation = observation.reshape((-1,) + self.observation_space.shape)
         actions = self.policy_tf.step(observation, deterministic=deterministic)
         actions = actions.reshape((-1,) + self.action_space.shape)  # reshape to the correct action shape
-        actions = actions * np.abs(self.action_space.low)  # scale the output for the prediction
+        actions = unscale_action(self.action_space, actions) # scale the output for the prediction
 
         if not vectorized_env:
             actions = actions[0]
@@ -567,7 +538,6 @@ class SAC_residual(OffPolicyRLModel):
     def save(self, save_path, cloudpickle=False):
         data = {
             "learning_rate": self.learning_rate,
-            "learning_rate_pi": self.learning_rate_pi,
             "buffer_size": self.buffer_size,
             "learning_starts": self.learning_starts,
             "train_freq": self.train_freq,
