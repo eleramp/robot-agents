@@ -1284,7 +1284,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaReachResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
@@ -1321,7 +1320,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaReachResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
@@ -1358,7 +1356,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaReachResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
@@ -1397,7 +1394,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
@@ -1433,7 +1429,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
@@ -1469,7 +1464,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
@@ -1623,7 +1617,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaReachResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
@@ -1660,7 +1653,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaReachResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
@@ -1697,7 +1689,6 @@ register_experiment({
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaReachResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
-                            'control_arm': 'r',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.05,
