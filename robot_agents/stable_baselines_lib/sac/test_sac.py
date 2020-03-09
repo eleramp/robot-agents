@@ -25,8 +25,6 @@ def evaluate(env, model, num_steps=1000):
   episode_rewards = [0.0]
   obs = env.reset()
   for i in range(num_steps):
-      # _states are only useful when using LSTM policies
-
       action, _states = model.predict(obs, deterministic=False)
 
       obs, reward, done, info = env.step(action)
@@ -38,6 +36,8 @@ def evaluate(env, model, num_steps=1000):
           time.sleep(1)
           obs = env.reset()
           episode_rewards.append(0.0)
+
+
 
 
   # Compute mean reward for the last 100 episodes
