@@ -31,6 +31,8 @@ def evaluate(env, model, out_dir, num_steps=1000):
     for i in range(num_steps):
         action, _states = model.predict(obs, deterministic=True)
         obs, reward, done, info = env.step(action)
+        img = model.env.render(mode='rgb_array')
+        images.append(img)
 
         # Stats
         episode_rewards[-1] += reward
@@ -39,9 +41,6 @@ def evaluate(env, model, out_dir, num_steps=1000):
             time.sleep(1)
             obs = env.reset()
             episode_rewards.append(0.0)
-
-        img = model.env.render(mode='rgb_array')
-        images.append(img)
 
     imageio.mimsave(os.path.join(out_dir, 'policy_evaluation.gif'),
                     [np.array(img) for i, img in enumerate(images)], fps=1)
