@@ -36,7 +36,7 @@ def main(exp_name, output_dir, do_train, do_test):
         env = gym.make(task['env_id'], **task['env_params'])
 
         # Seed everything to make things reproducible.
-        seed = task['seed']
+        seed = int(task['seed'])
         tf.compat.v1.reset_default_graph()
         set_global_seed(seed)
         env.seed(seed)

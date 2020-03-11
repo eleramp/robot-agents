@@ -8,5 +8,6 @@ from .deepq.test_deepq import test_DQN
 from .sac.train_sac import train_SAC
 from .sac.train_sac import train_SAC_residual
 from .sac.test_sac import test_SAC
+from .sac.test_sac import test_SAC_residual
 from .her.train_her import train_HER
 from .her.test_her import test_HER
