@@ -28,6 +28,7 @@ def evaluate(env, model, out_dir, num_steps=1000):
     obs = env.reset()
     images = []
     img = model.env.render(mode='rgb_array')
+    images.append(img)
     for i in range(num_steps):
         action, _states = model.predict(obs, deterministic=True)
         obs, reward, done, info = env.step(action)
