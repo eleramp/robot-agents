@@ -150,6 +150,43 @@ register_experiment({
              },
 })
 
+register_experiment({
+    'name': 'SQ_DRL_sisq/icub_reach_1obj/2_control_pts/low_penalty/obj_5',
+    'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix + 'iCubReachResidual-v0', 'seed': 1,
+               'env_params': {
+                   'log_file': '',
+                   'control_arm': 'r',
+                   'control_orientation': 1,
+                   'control_eu_or_quat': 0,
+                   'obj_pose_rnd_std': 0.05,
+                   'noise_pcl': 0.00,
+                   'use_superq': 1,
+                   'max_steps': 400 + 20 * n_control_pt,
+                   'n_control_pt': n_control_pt,
+                    'obj_name': 5,
+                   'r_weights': [low_r, -10, 10],
+                   'renders': False}
+               },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 100000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':12,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
 # 2
 register_experiment({
     'name': 'SQ_DRL_sisq/icub_reach_1obj/2_control_pts/medium_penalty',
@@ -487,6 +524,43 @@ register_experiment({
              },
 })
 
+register_experiment({
+    'name': 'SQ_DRL_sisq/icub_reach_1obj/4_control_pts/low_penalty/obj_5',
+    'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubReachResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_arm': 'r',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.05,
+                            'noise_pcl': 0.00,
+                            'use_superq': 1,
+                            'max_steps': 400 + 20 * n_control_pt,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': 5,
+                            'r_weights': [low_r, -10, 10],
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 100000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':12,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
 # 5
 register_experiment({
     'name': 'SQ_DRL_sisq/icub_reach_1obj/4_control_pts/medium_penalty',
@@ -577,6 +651,43 @@ register_experiment({
                             'max_steps': 400 + 20 * n_control_pt,
                             'n_control_pt': n_control_pt,
                             'obj_name': 2,
+                            'r_weights': [med_r, -10, 10],
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 100000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':12,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'SQ_DRL_sisq/icub_reach_1obj/4_control_pts/medium_penalty/obj_5',
+    'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubReachResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_arm': 'r',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.05,
+                            'noise_pcl': 0.00,
+                            'use_superq': 1,
+                            'max_steps': 400 + 20 * n_control_pt,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': 5,
                             'r_weights': [med_r, -10, 10],
                             'renders': False}
               },
@@ -711,6 +822,43 @@ register_experiment({
              },
 })
 
+register_experiment({
+    'name': 'SQ_DRL_sisq/icub_reach_1obj/4_control_pts/high_penalty/obj_5',
+    'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubReachResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_arm': 'r',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.05,
+                            'noise_pcl': 0.00,
+                            'use_superq': 1,
+                            'max_steps': 400 + 20 * n_control_pt,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': 5,
+                            'r_weights': [high_r, -10, 10],
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 100000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':12,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
 # 7
 n_control_pt = 8
 register_experiment({
@@ -802,6 +950,43 @@ register_experiment({
                             'max_steps': 400 + 20 * n_control_pt,
                             'n_control_pt': n_control_pt,
                             'obj_name': 2,
+                            'r_weights': [low_r, -10, 10],
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 100000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':12,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'SQ_DRL_sisq/icub_reach_1obj/8_control_pts/low_penalty/obj_5',
+    'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubReachResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_arm': 'r',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.05,
+                            'noise_pcl': 0.00,
+                            'use_superq': 1,
+                            'max_steps': 400 + 20 * n_control_pt,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': 5,
                             'r_weights': [low_r, -10, 10],
                             'renders': False}
               },
@@ -1522,7 +1707,7 @@ register_experiment({
     'algo': {'name': 'sac_residual',
              'RLlibrary': 'stable_baselines_lib',
              'description': 'HER from stable_baselines library',
-             'params': {'n_timesteps': 200000,
+             'params': {'n_timesteps': 100000,
                         'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
                         'gamma': 0.99,
                         'learning_rate': 0.0007224206139165605,
@@ -1589,6 +1774,43 @@ register_experiment({
                    'max_steps': 400 + 20 * n_control_pt,
                    'n_control_pt': n_control_pt,
                     'obj_name': 2,
+                   'r_weights': [low_r, -10, 10],
+                   'renders': False}
+               },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 100000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 100000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':12,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'SQ_DRL_sisq/icub_reach_1obj/2_control_pts/low_penalty/obj_5/baseline',
+    'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix + 'iCubReachResidual-v0', 'seed': 1,
+               'env_params': {
+                   'log_file': '',
+                   'control_arm': 'r',
+                   'control_orientation': 1,
+                   'control_eu_or_quat': 0,
+                   'obj_pose_rnd_std': 0.05,
+                   'noise_pcl': 0.00,
+                   'use_superq': 1,
+                   'max_steps': 400 + 20 * n_control_pt,
+                   'n_control_pt': n_control_pt,
+                    'obj_name': 5,
                    'r_weights': [low_r, -10, 10],
                    'renders': False}
                },
