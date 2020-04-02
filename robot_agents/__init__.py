@@ -5,9 +5,9 @@ from robot_agents.utils import linear_schedule
 from robot_agents.stable_baselines_lib.sac.sac_residual import SAC_residual
 
 ALGOS = {
-    'stable_baselines_lib': {'ddpg': robot_agents.stable_baselines_lib.train_DDPG,
+    'stable_baselines_lib': {'make_env': robot_agents.stable_baselines_lib.make_env,
+                             'ddpg': robot_agents.stable_baselines_lib.train_DDPG,
                              'td3': robot_agents.stable_baselines_lib.train_TD3,
-                             'td3_residual': robot_agents.stable_baselines_lib.train_TD3_residual,
                              'deepq': robot_agents.stable_baselines_lib.train_DQN,
                              'sac': robot_agents.stable_baselines_lib.train_SAC,
                              'sac_residual': robot_agents.stable_baselines_lib.train_SAC_residual,

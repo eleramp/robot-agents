@@ -8,14 +8,13 @@ import numpy as np
 
 from stable_baselines import HER, DQN, SAC, DDPG, TD3
 from robot_agents.stable_baselines_lib.sac.sac_residual import SAC_residual
-from robot_agents.stable_baselines_lib.td3.td3_residual import TD3_residual
 
 from stable_baselines.her import GoalSelectionStrategy, HERGoalEnvWrapper
 from stable_baselines.ddpg.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
 from stable_baselines.bench import Monitor
 from stable_baselines.results_plotter import load_results, ts2xy
 
-from stable_baselines.ppo2.ppo2 import constfn
+from stable_baselines.common.schedules import constfn
 from robot_agents.utils import linear_schedule
 
 best_mean_reward, n_steps = -np.inf, 0
@@ -46,7 +45,6 @@ def set_agent(algo_name):
     agent = DDPG if algo_name is 'ddpg' else agent
     agent = TD3 if algo_name is 'td3' else agent
     agent = SAC if algo_name is 'sac' else agent
-    agent = TD3_residual if algo_name is 'td3_residual' else agent
     agent = SAC_residual if algo_name is 'sac_residual' else agent
     return agent
 
@@ -54,7 +52,7 @@ def train_HER(env, out_dir, seed=None, **kwargs):
     # Logs will be saved in log_dir/monitor.csv
     global output_dir,log_dir
     output_dir = out_dir
-    log_dir = os.path.join(out_dir,'log')
+    log_dir = os.path.join(out_dir, 'log')
     os.makedirs(log_dir, exist_ok=True)
     env = Monitor(env, log_dir+'/', allow_early_resets=True)
 

@@ -8,6 +8,7 @@ import gym
 import tensorflow as tf
 from utils import set_global_seed
 from evaluation import experiment_registration
+
 import robot_agents
 
 import argparse
@@ -25,27 +26,26 @@ def main(exp_name, output_dir, do_train, do_test):
     for task in exp['tasks']:
 
         rl_library, algo_name, algo_params = exp['algo']['RLlibrary'], exp['algo']['name'], exp['algo']['params']
+
         output_exp_dir = os.path.join(output_dir, exp_name, task['sub_name'])  # algo_name, task['sub_name'])
         os.makedirs(output_exp_dir, exist_ok=True)
 
-        # Get Gym environment
-        renders = True if do_test else False
+        # Set Gym environment
+        renders = True #if do_test else False
         task['env_params']['renders'] = renders
         if 'log_file' in task['env_params']:
             task['env_params']['log_file'] = output_exp_dir
-        env = gym.make(task['env_id'], **task['env_params'])
+
+        seed = int(task['seed'])
+
+        # Create environment as normalized vectorized environment
+        env, eval_env = robot_agents.ALGOS[rl_library]['make_env'](task['env_id'], task['env_params'], seed, do_train)
 
         # Seed everything to make things reproducible.
-        seed = int(task['seed'])
         tf.compat.v1.reset_default_graph()
         set_global_seed(seed)
-        env.seed(seed)
-        # Should set a logger somehow
-        #
 
-        #run algorithm
-
-
+        # run algorithm
         csv_file = os.path.join(output_exp_dir,"exp_param.csv")
         try:
             with open(csv_file, 'w') as f:
@@ -55,7 +55,7 @@ def main(exp_name, output_dir, do_train, do_test):
             print("I/O error")
 
         if do_train:
-            model = robot_agents.ALGOS[rl_library][algo_name](env, output_exp_dir, seed, **algo_params)
+            model = robot_agents.ALGOS[rl_library][algo_name](env, eval_env, output_exp_dir, seed, **algo_params)
 
             if not model is None:
                 print("Saving model.pkl to ", output_exp_dir)
@@ -66,6 +66,7 @@ def main(exp_name, output_dir, do_train, do_test):
             model = robot_agents.ALGOS[rl_library][algo_name](env, output_exp_dir, seed, **algo_params)
 
         del env
+        del eval_env
         del model
 
 
