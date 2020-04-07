@@ -14,7 +14,7 @@ import robot_agents
 import argparse
 import csv
 
-def main(exp_name, output_dir, do_train, do_test):
+def main(exp_name, output_dir, do_train, do_test, with_vecnorm):
 
     if exp_name is None:
         raise ValueError("Please specify the experiment name. Run '$ experiment_wrapper -h' for info")
@@ -31,7 +31,7 @@ def main(exp_name, output_dir, do_train, do_test):
         os.makedirs(output_exp_dir, exist_ok=True)
 
         # Set Gym environment
-        renders = True #if do_test else False
+        renders = True if do_test else False
         task['env_params']['renders'] = renders
         if 'log_file' in task['env_params']:
             task['env_params']['log_file'] = output_exp_dir
@@ -39,7 +39,7 @@ def main(exp_name, output_dir, do_train, do_test):
         seed = int(task['seed'])
 
         # Create environment as normalized vectorized environment
-        env, eval_env = robot_agents.ALGOS[rl_library]['make_env'](task['env_id'], task['env_params'], seed, do_train)
+        env, eval_env = robot_agents.ALGOS[rl_library]['make_env'](task['env_id'], task['env_params'], seed, do_train, with_vecnorm)
 
         # Seed everything to make things reproducible.
         tf.compat.v1.reset_default_graph()
@@ -84,6 +84,9 @@ def parser_args():
 
     parser.add_argument('--test', action='store_const', const=1, dest="do_test",
                         help='do testing')
+
+    parser.add_argument('--vecnorm', action='store_const', const=1, dest="with_vecnorm",
+                        help='use VecNormalize of stable-baselines')
 
     parser.add_argument('--dir', type=str, action='store', dest='output_dir', default = '~/robot_agents_log/',
                         help='directory where trained model, params and logs should be stored')

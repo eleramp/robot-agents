@@ -115,6 +115,41 @@ register_experiment({
 })
 
 register_experiment({
+    'name': 'SQ_DRL_nosq/panda_grasp_1obj_v0/1_control_pts/obj_1',
+    'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.07,
+                            'noise_pcl': 0.00,
+                            'use_superq': 0,
+                            'max_steps': 500,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': 1,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 500000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':12,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
+register_experiment({
     'name': 'SQ_DRL_sisq/panda_grasp_1obj_v0/2_control_pts/obj_2',
     'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
@@ -192,9 +227,9 @@ BASELINE EXPERIMENTS
 
 n_control_pt = 2
 register_experiment({
-    'name': 'SQ_DRL_sisq/panda_reach_1obj/2_control_pts/obj_0-baseline',
+    'name': 'SQ_DRL_sisq/panda_grasp_1obj/2_control_pts/obj_0-baseline',
     'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
-    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaReachResidual-v0', 'seed': 1,
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
                             'control_orientation': 1,
@@ -227,7 +262,7 @@ register_experiment({
 })
 
 register_experiment({
-    'name': 'SQ_DRL_sisq/panda_reach_1obj/2_control_pts/obj_1-baseline',
+    'name': 'SQ_DRL_sisq/panda_grasp_1obj/2_control_pts/obj_1-baseline',
     'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
     'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
                'env_params': {
@@ -262,9 +297,9 @@ register_experiment({
 })
 
 register_experiment({
-    'name': 'SQ_DRL_sisq/panda_reach_1obj/2_control_pts/obj_2-baseline',
+    'name': 'SQ_DRL_sisq/panda_grasp_1obj/2_control_pts/obj_2-baseline',
     'description': '1 obj (mustard). random position and orientation. reward is: -10 fall, -1 contact, 10*1sec+100 success, 0 otherwise.',
-    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaReachResidual-v0', 'seed': 1,
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
                             'control_orientation': 1,
