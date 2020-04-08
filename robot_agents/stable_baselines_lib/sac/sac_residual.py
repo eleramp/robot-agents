@@ -442,7 +442,12 @@ class SAC_residual(OffPolicyRLModel):
                     obs_, new_obs_, reward_ = obs, new_obs, reward
 
                 # Store transition in the replay buffer.
-                self.replay_buffer.add(obs_, action, reward_, new_obs_, float(done))
+                if done and isinstance(self.env, VecEnv):
+                    # if it is the episode terminal iteration, store the terminal observation
+                    self.replay_buffer.add(obs_, action, reward_, info['terminal_observation'], float(done))
+                else:
+                    self.replay_buffer.add(obs_, action, reward_, new_obs_, float(done))
+
                 obs = new_obs
                 # Save the unnormalized observation
                 if self._vec_normalize_env is not None:
