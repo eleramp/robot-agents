@@ -14,7 +14,8 @@ from robot_agents.stable_baselines_lib.sac.sac_residual import SAC_residual
 from stable_baselines.ddpg.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
 
 from stable_baselines.common.schedules import constfn
-from robot_agents.utils import linear_schedule, get_train_callback
+from robot_agents.utils import linear_schedule
+from robot_agents.stable_baselines_lib.common.common import get_train_callback
 
 #
 import numpy as np
@@ -144,7 +145,7 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
                     verbose=1, tensorboard_log=os.path.join(out_dir, 'tb'), full_tensorboard_log=False, **kwargs)
 
     # start training
-    train_callback = get_train_callback(eval_env, out_dir)
+    train_callback = get_train_callback(eval_env, seed, out_dir)
     model.learn(total_timesteps=n_timesteps, callback=train_callback, log_interval=10)
 
     return model

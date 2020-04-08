@@ -58,8 +58,8 @@ def main(exp_name, output_dir, do_train, do_test, with_vecnorm):
             model = robot_agents.ALGOS[rl_library][algo_name](env, eval_env, output_exp_dir, seed, **algo_params)
 
             if not model is None:
-                print("Saving model.pkl to ", output_exp_dir)
-                model.save(os.path.join(output_exp_dir, "final_model.pkl"))
+                print("Saving model to ", output_exp_dir)
+                model.save(os.path.join(output_exp_dir, "final_model"))
 
         elif do_test:
             algo_name = algo_name+'_test'

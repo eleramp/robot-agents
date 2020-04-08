@@ -1,14 +1,98 @@
 import os
 import gym
+from typing import Union, Optional
 from stable_baselines.common import make_vec_env
-from stable_baselines.common.vec_env import VecNormalize
-from stable_baselines.bench import Monitor
+from stable_baselines.common.vec_env import VecEnv, VecNormalize, sync_envs_normalization
+from stable_baselines.common.callbacks import CallbackList, CheckpointCallback, EvalCallback, BaseCallback
+from stable_baselines.common.evaluation import evaluate_policy
 import numpy as np
 from stable_baselines import results_plotter
-import matplotlib
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 EPISODES_WINDOW = 80
+
+
+class EvalTensorboardCallback(EvalCallback):
+    """
+    Custom callback for plotting additional values in tensorboard.
+    """
+    def __init__(self, eval_env: Union[gym.Env, VecEnv],
+                 callback_on_new_best: Optional[BaseCallback] = None,
+                 n_eval_episodes: int = 5,
+                 eval_freq: int = 10000,
+                 log_path: str = None,
+                 best_model_save_path: str = None,
+                 deterministic: bool = True,
+                 render: bool = False,
+                 seed: int = 1,
+                 verbose: int = 1):
+
+        self.is_tb_set = False
+        self.seed = seed
+
+        super(EvalTensorboardCallback, self).__init__(eval_env=eval_env,
+                                                  callback_on_new_best=callback_on_new_best,
+                                                  n_eval_episodes=n_eval_episodes,
+                                                  eval_freq=eval_freq,
+                                                  log_path=log_path,
+                                                  best_model_save_path=best_model_save_path,
+                                                  deterministic=deterministic,
+                                                  render=render,
+                                                  verbose=verbose)
+
+    def _on_step(self) -> bool:
+        # Log additional tensor
+        if not self.is_tb_set:
+            with self.model.graph.as_default():
+                tf.summary.scalar('eval_episode_reward', self.last_mean_reward)
+                self.model.summary = tf.summary.merge_all()
+            self.is_tb_set = True
+
+        if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
+            # Sync training and eval env if there is VecNormalize
+            sync_envs_normalization(self.training_env, self.eval_env)
+
+            self.eval_env.seed(self.seed)
+
+            episode_rewards, episode_lengths = evaluate_policy(self.model, self.eval_env,
+                                                               n_eval_episodes=self.n_eval_episodes,
+                                                               render=self.render,
+                                                               deterministic=self.deterministic,
+                                                               return_episode_rewards=True)
+
+            if self.log_path is not None:
+                self.evaluations_timesteps.append(self.num_timesteps)
+                self.evaluations_results.append(episode_rewards)
+                self.evaluations_length.append(episode_lengths)
+                np.savez(self.log_path, timesteps=self.evaluations_timesteps,
+                         results=self.evaluations_results, ep_lengths=self.evaluations_length)
+
+            mean_reward, std_reward = np.mean(episode_rewards), np.std(episode_rewards)
+            mean_ep_length, std_ep_length = np.mean(episode_lengths), np.std(episode_lengths)
+            # Keep track of the last evaluation, useful for classes that derive from this callback
+            self.last_mean_reward = mean_reward
+
+            if self.verbose > 0:
+                print("Eval num_timesteps={}, "
+                      "episode_reward={:.2f} +/- {:.2f}".format(self.num_timesteps, mean_reward, std_reward))
+                print("Episode length: {:.2f} +/- {:.2f}".format(mean_ep_length, std_ep_length))
+
+            if mean_reward > self.best_mean_reward:
+                if self.verbose > 0:
+                    print("New best mean reward!")
+                if self.best_model_save_path is not None:
+                    self.model.save(os.path.join(self.best_model_save_path, 'best_model'))
+                self.best_mean_reward = mean_reward
+                # Trigger callback if needed
+                if self.callback is not None:
+                    return self._on_event()
+
+            # Log episode mean reward
+            summary = tf.Summary(value=[tf.Summary.Value(tag='eval_episode_reward', simple_value=self.last_mean_reward)])
+            self.locals['writer'].add_summary(summary, self.num_timesteps)
+
+        return True
 
 
 def make_env(env_id, env_args, seed, is_train, with_vecnorm):
@@ -36,6 +120,20 @@ def make_env(env_id, env_args, seed, is_train, with_vecnorm):
         eval_env = None
 
     return env, eval_env
+
+
+def get_train_callback(eval_env, seed, log_dir):
+    checkpoint_callback = CheckpointCallback(save_freq=3000, save_path=log_dir)
+
+    # Separate evaluation env
+    eval_callback = EvalTensorboardCallback(eval_env, best_model_save_path=os.path.join(log_dir, 'best_model'),
+                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=10,
+                                            deterministic=True, render=False, seed=seed)
+
+    # Create the callback list
+    callback = CallbackList([checkpoint_callback, eval_callback])
+
+    return callback
 
 def plot_curves(xy_list, xaxis, title):
     """
