@@ -19,7 +19,7 @@ class EvalTensorboardCallback(EvalCallback):
     """
     def __init__(self, eval_env: Union[gym.Env, VecEnv],
                  callback_on_new_best: Optional[BaseCallback] = None,
-                 n_eval_episodes: int = 5,
+                 n_eval_episodes: int = 10,
                  eval_freq: int = 10000,
                  log_path: str = None,
                  best_model_save_path: str = None,
@@ -88,9 +88,9 @@ class EvalTensorboardCallback(EvalCallback):
                 if self.callback is not None:
                     return self._on_event()
 
-            # Log episode mean reward
-            summary = tf.Summary(value=[tf.Summary.Value(tag='eval_episode_reward', simple_value=self.last_mean_reward)])
-            self.locals['writer'].add_summary(summary, self.num_timesteps)
+        # Log episode mean reward
+        summary = tf.Summary(value=[tf.Summary.Value(tag='eval_episode_reward', simple_value=self.last_mean_reward)])
+        self.locals['writer'].add_summary(summary, self.num_timesteps)
 
         return True
 
@@ -127,7 +127,7 @@ def get_train_callback(eval_env, seed, log_dir):
 
     # Separate evaluation env
     eval_callback = EvalTensorboardCallback(eval_env, best_model_save_path=os.path.join(log_dir, 'best_model'),
-                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=10,
+                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=3000,
                                             deterministic=True, render=False, seed=seed)
 
     # Create the callback list
@@ -156,6 +156,7 @@ def plot_curves(xy_list, xaxis, title):
     plt.xlabel(xaxis)
     plt.ylabel("Episode Rewards")
     plt.tight_layout()
+    plt.show()
 
 def load_evaluation_results(file_path):
     data = np.load(os.path.join(file_path, 'evaluations.npz'))
@@ -171,4 +172,6 @@ def load_evaluation_results(file_path):
     plot_curves([(data.f.timesteps, np.array(avg_res))], 'timesteps', 'evaluation_results')
     a = 1
 
-# load_evaluation_results('/home/erampone/workspace/phd/pybullet_robot_agents_logs/2020_04/SQ_DRL_sisq/panda_grasp_1obj_v0/1_control_pts/obj_1-sac_residual/evaluation_results')
+
+path = '/home/erampone/workspace/phd/pybullet_robot_agents_logs/2020_04_02/no_terminal_obs/basic_exp/sisq/panda_grasp_1obj/obj_1-sac_residual/evaluation_results'
+#load_evaluation_results(path)
