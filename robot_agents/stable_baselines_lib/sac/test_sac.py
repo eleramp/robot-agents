@@ -32,7 +32,7 @@ def evaluate(env, model, out_dir, num_episodes=20):
     for i in range(10000):
         action, _states = model.predict(obs, deterministic=True)
         print("rl action {}".format(action))
-        # action *= 0
+#        action *= 0
         obs, reward, done, info = env.step(action)
         img = model.env.render(mode='rgb_array')
         images.append(img)
@@ -42,11 +42,13 @@ def evaluate(env, model, out_dir, num_episodes=20):
         if done:
             print("Episode reward: ", episode_rewards[-1])
             time.sleep(1)
-            obs = env.reset()
             if len(episode_rewards) >= num_episodes:
                 break
             else:
                 episode_rewards.append(0.0)
+            obs = env.reset()
+            img = model.env.render(mode='rgb_array')
+            images.append(img)
 
     imageio.mimsave(os.path.join(out_dir, 'policy_evaluation.gif'),
                     [np.array(img) for i, img in enumerate(images)], fps=1)
