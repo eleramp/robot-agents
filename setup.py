@@ -10,6 +10,6 @@ setup(
     author="Elena Rampone",
     author_email="elena.rampone@iit.it",
     description="Robot Agents: toolkit to develop and test RL algorithms on robotic manipulation tasks",
-    python_requires='>=3.5',
+    python_requires='>=3.*',
     install_requires=['stable_baselines'],
 )
