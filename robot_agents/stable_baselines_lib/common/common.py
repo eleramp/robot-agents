@@ -19,7 +19,7 @@ class EvalTensorboardCallback(EvalCallback):
     """
     def __init__(self, eval_env: Union[gym.Env, VecEnv],
                  callback_on_new_best: Optional[BaseCallback] = None,
-                 n_eval_episodes: int = 10,
+                 n_eval_episodes: int = 100,
                  eval_freq: int = 10000,
                  log_path: str = None,
                  best_model_save_path: str = None,
@@ -53,7 +53,7 @@ class EvalTensorboardCallback(EvalCallback):
             # Sync training and eval env if there is VecNormalize
             sync_envs_normalization(self.training_env, self.eval_env)
 
-            self.eval_env.seed(self.seed)
+            # self.eval_env.seed(self.seed)
 
             episode_rewards, episode_lengths = evaluate_policy(self.model, self.eval_env,
                                                                n_eval_episodes=self.n_eval_episodes,
@@ -127,7 +127,7 @@ def get_train_callback(eval_env, seed, log_dir):
 
     # Separate evaluation env
     eval_callback = EvalTensorboardCallback(eval_env, best_model_save_path=os.path.join(log_dir, 'best_model'),
-                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=3000,
+                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=20000,
                                             deterministic=True, render=False, seed=seed)
 
     # Create the callback list
@@ -135,7 +135,7 @@ def get_train_callback(eval_env, seed, log_dir):
 
     return callback
 
-def plot_curves(xy_list, xaxis, title):
+def plot_curves(xyz_list, xaxis, title):
     """
     plot the curves
 
@@ -146,11 +146,12 @@ def plot_curves(xy_list, xaxis, title):
     """
 
     plt.figure(figsize=(8, 2))
-    maxx = max(xy[0][-1] for xy in xy_list)
+    maxx = max(xyz[0][-1] for xyz in xyz_list)
     minx = 0
-    for (i, (x, y)) in enumerate(xy_list):
+    for (i, (x, y, z)) in enumerate(xyz_list):
         color = results_plotter.COLORS[i]
-        plt.plot(x, y, color=color)
+        # plt.plot(x, y, color=color)
+        plt.errorbar(x, y, z, color=color)
     plt.xlim(minx, maxx)
     plt.title(title)
     plt.xlabel(xaxis)
@@ -161,17 +162,12 @@ def plot_curves(xy_list, xaxis, title):
 def load_evaluation_results(file_path):
     data = np.load(os.path.join(file_path, 'evaluations.npz'))
     res = data.f.results
-    avg_res = []
-    for ep in res:
-        avg = 0
-        for r in ep:
-            avg += r
-        avg /= len(ep)
-        avg_res.append(avg)
+    avg_res = [np.mean(ep) for ep in res]
+    std_res = [np.std(ep) for ep in res]
 
-    plot_curves([(data.f.timesteps, np.array(avg_res))], 'timesteps', 'evaluation_results')
+    plot_curves([(data.f.timesteps, avg_res, std_res)], 'timesteps', 'evaluation_results')
     a = 1
 
 
-path = '/home/erampone/workspace/phd/pybullet_robot_agents_logs/2020_04_02/no_terminal_obs/basic_exp/sisq/panda_grasp_1obj/obj_1-sac_residual/evaluation_results'
-#load_evaluation_results(path)
+path = '/home/r1-user/elena_ws/git_repos/rl_experiments/new_reward_fix_obs/multi_obj/cv/panda_grasp_8cylinders-sac_residual/seed_1/evaluation_results'
+# load_evaluation_results(path)
