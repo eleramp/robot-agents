@@ -42,6 +42,43 @@ n_control_pt = 2
 low_r, med_r, high_r = -2, -5, -8
 
 
+# icub grasp
+register_experiment({
+    'name': 'icub_grasp_3objs_fixed/2_control_pts',
+    'description': '3 objects in fixed position.',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'iCubGraspResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.0,
+                            'noise_pcl': 0.00,
+                            'use_superq': 1,
+                            'max_steps': 600,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': None,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 500000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess':12,
+                        'policy_kwargs': {'layers': [256,256]},
+                        },
+             },
+})
+
+
 # panda grasp
 
 register_experiment({
@@ -580,16 +617,16 @@ register_experiment({
 })
 
 register_experiment({
-    'name': 'multi_obj/cv/panda_grasp_8cylinders',
-    'description': 'train on 8 cylinders of similar dim to see if it can generalize on unseen similar shapes in test',
-    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidualCvCyl-v0', 'seed': 1,
+    'name': 'multi_obj/nosq/panda_grasp_4objs',
+    'description': '1 obj. same pose',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
                'env_params': {
                             'log_file': '',
                             'control_orientation': 1,
                             'control_eu_or_quat': 0,
                             'obj_pose_rnd_std': 0.1,
-                            'noise_pcl': 0.001,
-                            'use_superq': 1,
+                            'noise_pcl': 0.00,
+                            'use_superq': 0,
                             'max_steps': 1000,
                             'n_control_pt': n_control_pt,
                             'obj_name': None,
@@ -613,3 +650,215 @@ register_experiment({
                         },
              },
 })
+
+register_experiment({
+    'name': 'multi_obj/cv/panda_grasp_8cylinders',
+    'description': 'train on 8 cylinders of similar dim to see if it can generalize on unseen similar shapes in test',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidualCvCyl-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.1,
+                            'noise_pcl': 0.001,
+                            'use_superq': 1,
+                            'max_steps': 1000,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': None,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 200000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess': 12,
+                        'policy_kwargs': {'layers': [256, 256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'multi_obj/cv_nosq/panda_grasp_8cylinders',
+    'description': 'train on 8 cylinders of similar dim to see if it can generalize on unseen similar shapes in test',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidualCvCyl-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.1,
+                            'noise_pcl': 0.001,
+                            'use_superq': 0,
+                            'max_steps': 1000,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': None,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 200000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess': 12,
+                        'policy_kwargs': {'layers': [256, 256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'multi_obj_fixed/sisq_r_bonus/panda_grasp_4objs',
+    'description': 'add superquadric context related info in reward',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.0,
+                            'noise_pcl': 0.00,
+                            'use_superq': 1,
+                            'max_steps': 1000,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': None,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 50000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess': 12,
+                        'policy_kwargs': {'layers': [256, 256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'multi_obj_fixed/sisq/panda_grasp_4objs',
+    'description': 'add superquadric context related info in reward',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.0,
+                            'noise_pcl': 0.00,
+                            'use_superq': 1,
+                            'max_steps': 1000,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': None,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 50000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess': 12,
+                        'policy_kwargs': {'layers': [256, 256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'multi_obj_fixed/nosq/panda_grasp_4objs',
+    'description': '1 obj. same pose',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'pandaGraspResidual-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.0,
+                            'noise_pcl': 0.00,
+                            'use_superq': 0,
+                            'max_steps': 1000,
+                            'n_control_pt': n_control_pt,
+                            'obj_name': None,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 50000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess': 12,
+                        'policy_kwargs': {'layers': [256, 256]},
+                        },
+             },
+})
+
+register_experiment({
+    'name': 'superquadric_dset/sisq/panda_grasp',
+    'description': '1 obj. same pose',
+    'tasks': [{'sub_name': '', 'env_id': _env_prefix+'PandaGraspResidualGymEnvSqObj-v0', 'seed': 1,
+               'env_params': {
+                            'log_file': '',
+                            'dset': 'train',
+                            'control_orientation': 1,
+                            'control_eu_or_quat': 0,
+                            'obj_pose_rnd_std': 0.0,
+                            'obj_orn_rnd': 1.0,
+                            'noise_pcl': 0.00,
+                            'use_superq': 1,
+                            'max_steps': 1000,
+                            'n_control_pt': n_control_pt,
+                            'renders': False}
+              },
+             ],
+    'algo': {'name': 'sac_residual',
+             'RLlibrary': 'stable_baselines_lib',
+             'description': 'HER from stable_baselines library',
+             'params': {'n_timesteps': 50000,
+                        'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
+                        'gamma': 0.99,
+                        'learning_rate': 0.0007224206139165605,
+                        'batch_size': 256,
+                        'buffer_size': 10000,
+                        'learning_starts': 1000,
+                        'train_freq': 10,
+                        'ent_coef': 0.1,
+                        'n_cpu_tf_sess': 12,
+                        'policy_kwargs': {'layers': [256, 256]},
+                        },
+             },
+})
+
