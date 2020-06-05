@@ -25,14 +25,18 @@ def evaluate(env, model, out_dir, num_episodes=20):
     :return: (float) Mean reward for the last 100 episodes
     """
     episode_rewards = [0.0]
+    episode_successes = []
+
     obs = env.reset()
+
     images = []
     img = model.env.render(mode='rgb_array')
     images.append(img)
+
     for i in range(10000):
         action, _states = model.predict(obs, deterministic=True)
         print("rl action {}".format(action))
-#        action *= 0
+        # action *= 0
         obs, reward, done, info = env.step(action)
         img = model.env.render(mode='rgb_array')
         images.append(img)
@@ -41,7 +45,10 @@ def evaluate(env, model, out_dir, num_episodes=20):
         episode_rewards[-1] += reward
         if done:
             print("Episode reward: ", episode_rewards[-1])
-            time.sleep(1)
+            maybe_is_success = info.get('is_success')
+            if maybe_is_success is not None:
+                episode_successes.append(float(maybe_is_success))
+            time.sleep(0.5)
             if len(episode_rewards) >= num_episodes:
                 break
             else:
@@ -53,9 +60,17 @@ def evaluate(env, model, out_dir, num_episodes=20):
     imageio.mimsave(os.path.join(out_dir, 'policy_evaluation.gif'),
                     [np.array(img) for i, img in enumerate(images)], fps=1)
 
+    print("Num episodes:", len(episode_rewards))
     # Compute mean reward for the last 100 episodes
     mean_ep = round(float(np.mean(episode_rewards)), 1)
-    print("Mean reward:", mean_ep, "Num episodes:", len(episode_rewards))
+    print("Mean reward:", mean_ep)
+    # standard deviation
+    std_ep = round(float(np.std(episode_rewards)), 1)
+    print("Std reward:", std_ep)
+    # Success rate
+    if len(episode_successes) > 0:
+        success_rate = round(float(np.mean(episode_successes)), 2)
+        print("Success rate:", success_rate)
 
     return mean_ep
 
@@ -75,6 +90,6 @@ def test_SAC_residual(env, out_dir, seed=None, **kwargs):
     env.seed(seed+1)
 
     # Evaluate the trained agent
-    mean_reward = evaluate(env, model, out_dir, num_episodes=20)
+    mean_reward = evaluate(env, model, out_dir, num_episodes=10)
 
     return
