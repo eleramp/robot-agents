@@ -34,6 +34,7 @@ def main(exp_name, output_dir, do_train, do_test, n_seeds, seed_val):
             task['seed'] = seed_val
 
         if n_seeds > 1 or 'seed' not in task:
+            np.random.seed(2)
             seeds = np.random.randint(0, 20000, size=n_seeds)
         else:
             seeds = np.array([task['seed']])
