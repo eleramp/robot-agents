@@ -109,6 +109,8 @@ def make_env(env_id, env_args, seed, is_train, with_vecnorm):
 
         # env for evaluation during training
         env_args['renders'] = False
+        if 'dset' in env_args:
+            env_args['dset'] = 'eval'
         eval_env = make_vec_env(env_id=lambda: gym.make(env_id, **env_args),
                            seed=seed+1, monitor_dir=monitor_dir+'/eval', n_envs=1)
 
@@ -127,8 +129,8 @@ def get_train_callback(eval_env, seed, log_dir):
 
     # Separate evaluation env
     eval_callback = EvalTensorboardCallback(eval_env, best_model_save_path=os.path.join(log_dir, 'best_model'),
-                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=20000,
-                                            deterministic=True, render=False, seed=seed)
+                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=100000,
+                                            n_eval_episodes=6000, deterministic=True, render=False, seed=seed)
 
     # Create the callback list
     callback = CallbackList([checkpoint_callback, eval_callback])
