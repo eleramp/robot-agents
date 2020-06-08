@@ -124,13 +124,13 @@ def make_env(env_id, env_args, seed, is_train, with_vecnorm):
     return env, eval_env
 
 
-def get_train_callback(eval_env, seed, log_dir):
-    checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=log_dir)
+def get_train_callback(eval_env, seed, log_dir, save_f=10000, eval_f=50000, eval_ep=1000):
+    checkpoint_callback = CheckpointCallback(save_freq=save_f, save_path=log_dir)
 
     # Separate evaluation env
     eval_callback = EvalTensorboardCallback(eval_env, best_model_save_path=os.path.join(log_dir, 'best_model'),
-                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=100000,
-                                            n_eval_episodes=3000, deterministic=True, render=False, seed=seed)
+                                            log_path=os.path.join(log_dir, 'evaluation_results'), eval_freq=eval_f,
+                                            n_eval_episodes=eval_ep, deterministic=True, render=False, seed=seed)
 
     # Create the callback list
     callback = CallbackList([checkpoint_callback, eval_callback])

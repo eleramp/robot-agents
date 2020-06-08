@@ -63,7 +63,7 @@ register_experiment({
     'algo': {'name': 'sac_residual',
              'RLlibrary': 'stable_baselines_lib',
              'description': 'HER from stable_baselines library',
-             'params': {'n_timesteps': 50000,
+             'params': {'n_timesteps': 2000000,
                         'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
                         'gamma': 0.99,
                         'learning_rate': 0.0007224206139165605,
@@ -73,6 +73,9 @@ register_experiment({
                         'train_freq': 10,
                         'ent_coef': 0.1,
                         'n_cpu_tf_sess': 12,
+                        'eval_episides': 3000,
+                        'eval_freq': 100000,
+                        'save_freq': 20000,
                         'policy_kwargs': {'layers': [256, 256]},
                         },
              },
@@ -99,7 +102,7 @@ register_experiment({
     'algo': {'name': 'sac_residual',
              'RLlibrary': 'stable_baselines_lib',
              'description': 'HER from stable_baselines library',
-             'params': {'n_timesteps': 50000,
+             'params': {'n_timesteps': 2000000,
                         'policy': 'MlpPolicy',  # options: MlpPolicy e cnns ones
                         'gamma': 0.99,
                         'learning_rate': 0.0007224206139165605,
@@ -109,8 +112,10 @@ register_experiment({
                         'train_freq': 10,
                         'ent_coef': 0.1,
                         'n_cpu_tf_sess': 12,
+                        'eval_episides': 3000,
+                        'eval_freq': 100000,
+                        'save_freq': 20000,
                         'policy_kwargs': {'layers': [256, 256]},
                         },
              },
 })
-

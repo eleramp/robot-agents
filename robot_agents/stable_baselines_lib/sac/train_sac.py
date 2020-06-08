@@ -34,6 +34,22 @@ def train_SAC( env, eval_env, out_dir, seed=None, **kwargs):
     del kwargs['policy']
     del kwargs['n_timesteps']
 
+
+    save_frequency = 10000
+    eval_frequency = 50000
+    eval_episodes = 1000
+    if 'save_freq' in kwargs['save_freq']:
+        save_frequency = kwargs['save_freq']
+        del kwargs['save_freq']
+
+    if 'eval_freq' in kwargs['eval_freq']:
+        eval_frequency = kwargs['eval_freq']
+        del kwargs['eval_freq']
+
+    if 'eval_episides' in kwargs['eval_episides']:
+        eval_episodes = kwargs['eval_episides']
+        del kwargs['eval_episides']
+
     # the noise objects - usually not necessary for SAC but can help for hard exploration tasks
     nb_actions = env.action_space.shape[-1]
     action_noise = None
@@ -80,7 +96,8 @@ def train_SAC( env, eval_env, out_dir, seed=None, **kwargs):
                     verbose=1, tensorboard_log=os.path.join(out_dir, 'tb'), full_tensorboard_log=False, **kwargs)
 
     # start training
-    train_callback = get_train_callback(eval_env, out_dir)
+    train_callback = get_train_callback(eval_env, seed, out_dir,
+                        save_f=save_frequency, eval_f=eval_frequency, eval_ep=eval_episodes)
     model.learn(total_timesteps=n_timesteps, callback=train_callback, log_interval=10)
 
     return model
@@ -97,6 +114,21 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
         del kwargs['noise_type']
     del kwargs['policy']
     del kwargs['n_timesteps']
+
+    save_frequency = 10000
+    eval_frequency = 50000
+    eval_episodes = 1000
+    if 'save_freq' in kwargs['save_freq']:
+        save_frequency = kwargs['save_freq']
+        del kwargs['save_freq']
+
+    if 'eval_freq' in kwargs['eval_freq']:
+        eval_frequency = kwargs['eval_freq']
+        del kwargs['eval_freq']
+
+    if 'eval_episides' in kwargs['eval_episides']:
+        eval_episodes = kwargs['eval_episides']
+        del kwargs['eval_episides']
 
     # the noise objects - usually not necessary for SAC but can help for hard exploration tasks
     nb_actions = env.action_space.shape[-1]
@@ -145,7 +177,9 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
                     verbose=1, tensorboard_log=os.path.join(out_dir, 'tb'), full_tensorboard_log=False, **kwargs)
 
     # start training
-    train_callback = get_train_callback(eval_env, seed, out_dir)
+    train_callback = get_train_callback(eval_env, seed, out_dir,
+                        save_f=save_frequency, eval_f=eval_frequency, eval_ep=eval_episodes)
+
     model.learn(total_timesteps=n_timesteps, callback=train_callback, log_interval=10)
 
     return model
