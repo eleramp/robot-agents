@@ -88,17 +88,19 @@ def train_SAC( env, eval_env, out_dir, seed=None, **kwargs):
         print("Loading pretrained agent")
         model = SAC.load(os.path.join(out_dir, 'final_model.pkl'), env=env,
                          tensorboard_log=os.path.join(out_dir, 'tb'), verbose=1, **kwargs)
+        reset_num_timesteps=False
     else:
         if 'continue' in kwargs:
             del kwargs['continue']
         # create model
         model = SAC(policy, env, action_noise=action_noise, seed=seed,
                     verbose=1, tensorboard_log=os.path.join(out_dir, 'tb'), full_tensorboard_log=False, **kwargs)
+        reset_num_timesteps=True
 
     # start training
     train_callback = get_train_callback(eval_env, seed, out_dir,
                         save_f=save_frequency, eval_f=eval_frequency, eval_ep=eval_episodes)
-    model.learn(total_timesteps=n_timesteps, callback=train_callback, log_interval=10)
+    model.learn(total_timesteps=n_timesteps, callback=train_callback, log_interval=10, reset_num_timesteps=reset_num_timesteps)
 
     return model
 
@@ -168,6 +170,8 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
         print("Loading pretrained agent")
         model = SAC_residual.load(os.path.join(out_dir,'final_model.pkl'), env=env,
                          tensorboard_log=os.path.join(out_dir, 'tb'), verbose=1, **kwargs)
+
+        reset_num_timesteps = False
     else:
         if 'continue' in kwargs:
             del kwargs['continue']
@@ -176,10 +180,12 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
         model = SAC_residual(policy, env, action_noise=action_noise, seed=seed,
                     verbose=1, tensorboard_log=os.path.join(out_dir, 'tb'), full_tensorboard_log=False, **kwargs)
 
+        reset_num_timesteps = True
+
     # start training
     train_callback = get_train_callback(eval_env, seed, out_dir,
                         save_f=save_frequency, eval_f=eval_frequency, eval_ep=eval_episodes)
 
-    model.learn(total_timesteps=n_timesteps, callback=train_callback, log_interval=10)
+    model.learn(total_timesteps=n_timesteps, callback=train_callback, log_interval=10, reset_num_timesteps=reset_num_timesteps)
 
     return model
