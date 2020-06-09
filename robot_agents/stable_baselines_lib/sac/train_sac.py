@@ -38,15 +38,15 @@ def train_SAC( env, eval_env, out_dir, seed=None, **kwargs):
     save_frequency = 10000
     eval_frequency = 50000
     eval_episodes = 1000
-    if 'save_freq' in kwargs['save_freq']:
+    if 'save_freq' in kwargs:
         save_frequency = kwargs['save_freq']
         del kwargs['save_freq']
 
-    if 'eval_freq' in kwargs['eval_freq']:
+    if 'eval_freq' in kwargs:
         eval_frequency = kwargs['eval_freq']
         del kwargs['eval_freq']
 
-    if 'eval_episides' in kwargs['eval_episides']:
+    if 'eval_episides' in kwargs:
         eval_episodes = kwargs['eval_episides']
         del kwargs['eval_episides']
 
@@ -118,15 +118,15 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
     save_frequency = 10000
     eval_frequency = 50000
     eval_episodes = 1000
-    if 'save_freq' in kwargs['save_freq']:
+    if 'save_freq' in kwargs:
         save_frequency = kwargs['save_freq']
         del kwargs['save_freq']
 
-    if 'eval_freq' in kwargs['eval_freq']:
+    if 'eval_freq' in kwargs:
         eval_frequency = kwargs['eval_freq']
         del kwargs['eval_freq']
 
-    if 'eval_episides' in kwargs['eval_episides']:
+    if 'eval_episides' in kwargs:
         eval_episodes = kwargs['eval_episides']
         del kwargs['eval_episides']
 
