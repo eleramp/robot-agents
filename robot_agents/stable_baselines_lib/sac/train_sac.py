@@ -86,7 +86,7 @@ def train_SAC( env, eval_env, out_dir, seed=None, **kwargs):
     if 'continue' in kwargs and kwargs['continue'] is True:
         # Continue training
         print("Loading pretrained agent")
-        model = SAC.load(os.path.join(out_dir, 'final_model.pkl'), env=env,
+        model = SAC.load(os.path.join(out_dir, 'final_model.zip'), env=env,
                          tensorboard_log=os.path.join(out_dir, 'tb'), verbose=1, **kwargs)
         reset_num_timesteps=False
     else:
@@ -168,7 +168,7 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
     if 'continue' in kwargs and kwargs['continue'] is True:
         # Continue training
         print("Loading pretrained agent")
-        model = SAC_residual.load(os.path.join(out_dir,'final_model.pkl'), env=env,
+        model = SAC_residual.load(os.path.join(out_dir,'final_model.zip'), env=env,
                          tensorboard_log=os.path.join(out_dir, 'tb'), verbose=1, **kwargs)
 
         reset_num_timesteps = False
