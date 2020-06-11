@@ -20,6 +20,7 @@ from robot_agents.stable_baselines_lib.common.common import get_train_callback
 #
 import numpy as np
 import math as m
+import glob
 
 
 def train_SAC( env, eval_env, out_dir, seed=None, **kwargs):
@@ -84,11 +85,15 @@ def train_SAC( env, eval_env, out_dir, seed=None, **kwargs):
                 raise ValueError('Invalid valid for {}: {}'.format(key, kwargs[key]))
 
     if 'continue' in kwargs and kwargs['continue'] is True:
-        # Continue training
         print("Loading pretrained agent")
-        model = SAC.load(os.path.join(out_dir, 'final_model.zip'), env=env,
-                         tensorboard_log=os.path.join(out_dir, 'tb'), verbose=1, **kwargs)
+        list_of_models = glob.glob(os.path.join(out_dir, '*.zip'))
+        last_saved_model = max(list_of_models, key=os.path.getctime)
+        model = SAC_residual.load(last_saved_model, env=env,
+                                  tensorboard_log=os.path.join(out_dir, 'tb'), verbose=1, **kwargs)
         reset_num_timesteps=False
+        if 'num_timesteps' in kwargs:
+            model.num_timesteps = kwargs['num_timesteps']
+            del kwargs['num_timesteps']
     else:
         if 'continue' in kwargs:
             del kwargs['continue']
@@ -168,10 +173,17 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
     if 'continue' in kwargs and kwargs['continue'] is True:
         # Continue training
         print("Loading pretrained agent")
-        model = SAC_residual.load(os.path.join(out_dir,'final_model.zip'), env=env,
+        list_of_models = glob.glob(os.path.join(out_dir, '*.zip'))
+        last_saved_model = max(list_of_models, key=os.path.getctime)
+        model = SAC_residual.load(last_saved_model, env=env,
                          tensorboard_log=os.path.join(out_dir, 'tb'), verbose=1, **kwargs)
 
         reset_num_timesteps = False
+        # if the saved model do not contains the num of elapsed timesteps, it would be necessary to manually set the model.num_timesteps in order to continue update the same tensorboad file
+        if 'num_timesteps' in kwargs:
+            model.num_timesteps = kwargs['num_timesteps']
+            del kwargs['num_timesteps']
+
     else:
         if 'continue' in kwargs:
             del kwargs['continue']
@@ -181,6 +193,7 @@ def train_SAC_residual( env, eval_env, out_dir, seed=None, **kwargs):
                     verbose=1, tensorboard_log=os.path.join(out_dir, 'tb'), full_tensorboard_log=False, **kwargs)
 
         reset_num_timesteps = True
+
 
     # start training
     train_callback = get_train_callback(eval_env, seed, out_dir,
