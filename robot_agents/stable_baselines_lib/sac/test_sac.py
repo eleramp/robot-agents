@@ -17,6 +17,21 @@ import time
 import imageio
 
 
+actions = {'x': [], 'y': [], 'z': [], 'roll': [], 'pitch': [], 'yaw': []}
+
+
+def dump_action(out_dir, action):
+
+    actions['x'].append(action[0])
+    actions['y'].append(action[1])
+    actions['z'].append(action[2])
+    actions['roll'].append(action[3])
+    actions['pitch'].append(action[4])
+    actions['yaw'].append(action[5])
+
+    np.savez(out_dir, x=actions['x'], y=actions['y'], z=actions['z'], roll=actions['roll'], pitch=actions['pitch'], yaw=actions['yaw'])
+
+
 def evaluate(env, model, out_dir, num_episodes=20):
     """
     Evaluate a RL agent
@@ -35,11 +50,12 @@ def evaluate(env, model, out_dir, num_episodes=20):
 
     for i in range(10000):
         action, _states = model.predict(obs, deterministic=True)
-        print("rl action {}".format(action))
         # action *= 0
         obs, reward, done, info = env.step(action)
         img = model.env.render(mode='rgb_array')
         images.append(img)
+
+        dump_action(out_dir, action)
 
         # Stats
         episode_rewards[-1] += reward

@@ -137,6 +137,7 @@ def get_train_callback(eval_env, seed, log_dir, save_f=10000, eval_f=50000, eval
 
     return callback
 
+
 def plot_curves(xyz_list, xaxis, title):
     """
     plot the curves
@@ -161,6 +162,7 @@ def plot_curves(xyz_list, xaxis, title):
     plt.tight_layout()
     plt.show()
 
+
 def load_evaluation_results(file_path):
     data = np.load(os.path.join(file_path, 'evaluations.npz'))
     res = data.f.results
@@ -171,5 +173,62 @@ def load_evaluation_results(file_path):
     a = 1
 
 
-path = '/home/r1-user/elena_ws/git_repos/rl_experiments/new_reward_fix_obs/multi_obj/cv/panda_grasp_8cylinders-sac_residual/seed_1/evaluation_results'
-# load_evaluation_results(path)
+def load_actions(file_path):
+    data = np.load(file_path)
+    x_vals = data.f.x
+    y_vals = data.f.y
+    z_vals = data.f.z
+    roll_vals = data.f.roll
+    pitch_vals = data.f.pitch
+    yaw_vals = data.f.yaw
+
+    df_x = pd.DataFrame(x_vals, columns=['x'])
+    df_y = pd.DataFrame(y_vals, columns=['y'])
+    df_z = pd.DataFrame(z_vals, columns=['z'])
+    df_roll = pd.DataFrame(roll_vals, columns=['roll'])
+    df_pitch = pd.DataFrame(pitch_vals, columns=['pitch'])
+    df_yaw = pd.DataFrame(yaw_vals, columns=['yaw'])
+
+    # Make the plot
+    df_x.plot.hist(bins=100, alpha=0.5)
+    x_min, x_max = min(x_vals), max(x_vals)
+    x_mean, x_std = np.mean(x_vals), np.std(x_vals)
+    title = "min: " + str(round(float(x_min), 2)) + ", max: " + str(round(float(x_max), 2)) + ", mean: " + str(
+        round(float(x_mean), 2)) + ", std: " + str(round(float(x_std), 2))
+    plt.title(title, fontsize=12, fontweight=0, color='black')
+
+    df_y.plot.hist(bins=100, alpha=0.5)
+    y_min, y_max = min(y_vals), max(y_vals)
+    y_mean, y_std = np.mean(y_vals), np.std(y_vals)
+    title = "min: " + str(round(float(y_min), 2)) + ", max: " + str(round(float(y_max), 2)) + ", mean: " + str(
+        round(float(y_mean), 2)) + ", std: " + str(round(float(y_std), 2))
+    plt.title(title, fontsize=12, fontweight=0, color='black')
+
+    df_z.plot.hist(bins=100, alpha=0.5)
+    z_min, z_max = min(z_vals), max(z_vals)
+    z_mean, z_std = np.mean(z_vals), np.std(z_vals)
+    title = "min: " + str(round(float(z_min), 2)) + ", max: " + str(round(float(z_max), 2)) + ", mean: " + str(
+        round(float(z_mean), 2)) + ", std: " + str(round(float(z_std), 2))
+    plt.title(title, fontsize=12, fontweight=0, color='black')
+
+    df_roll.plot.hist(bins=100, alpha=0.5)
+    roll_min, roll_max = min(roll_vals), max(roll_vals)
+    roll_mean, roll_std = np.mean(roll_vals), np.std(roll_vals)
+    title = "min: " + str(round(float(roll_min), 2)) + ", max: " + str(round(float(roll_max), 2)) + ", mean: " + str(
+        round(float(roll_mean), 2)) + ", std: " + str(round(float(roll_std), 2))
+    plt.title(title, fontsize=12, fontweight=0, color='black')
+
+    df_pitch.plot.hist(bins=100, alpha=0.5)
+    pitch_min, pitch_max = min(pitch_vals), max(pitch_vals)
+    pitch_mean, pitch_std = np.mean(pitch_vals), np.std(pitch_vals)
+    title = "min: " + str(round(float(pitch_min), 2)) + ", max: " + str(round(float(pitch_max), 2)) + ", mean: " + str(
+        round(float(pitch_mean), 2)) + ", std: " + str(round(float(pitch_std), 2))
+    plt.title(title, fontsize=12, fontweight=0, color='black')
+
+
+    df_yaw.plot.hist(bins=100, alpha=0.5)
+    yaw_min, yaw_max = min(yaw_vals), max(yaw_vals)
+    yaw_mean, yaw_std = np.mean(yaw_vals), np.std(yaw_vals)
+    title = "min: " + str(round(float(yaw_min), 2)) + ", max: " + str(round(float(yaw_max), 2)) + ", mean: " + str(
+        round(float(yaw_mean), 2)) + ", std: " + str(round(float(yaw_std), 2))
+    plt.title(title, fontsize=12, fontweight=0, color='black')
